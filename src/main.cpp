@@ -11,64 +11,74 @@
 #include "valve.h"
 #include "Config.h"
 
-HttpHelper httph;
-const char* WIFI_SSID = "Yss_GIGA";
-const char* WIFI_PASS = "bqt3bqt3";
+//HttpHelper httph;
+std::array <char*,2> WIFI_SSID {"Yss_GIGA","academy"};
+std::array <char*,2> WIFI_PASS {"bqt3bqt3","123qweasd"};
+//const char* WIFI_SSID [] = {"Yss_GIGA","academy"};
+//const char* WIFI_PASS [] = {"bqt3bqt3","123qweasd"};
+//const char* WIFI_SSID1 = "academy";
+//const char* WIFI_PASS1 = "123qweasd";
+const PROGMEM char *ntpServer = "pool.ntp.org";
 const char* fw = "Running firmware v. 2.1";
 
 
-HttpHelper * http_server;
+
 unsigned long msWiFi;
 boolean forceWiFi;//если не задалось с первого раза повторять каждые Х минут или нет
 //BandLED band;
 extern boolean connect2WiFi();
+long ms;
 
+HttpHelper * http_server;
 Rtc1302 rtc;
 Buttons btns;
 Wsensors wsens;
 Valve valve(PIN_VOPEN,PIN_VCLOSE);
+
 //NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);//0ne per day
 //NTPClient timeClient(ntpUDP);//0ne per day
-int8_t timeZone = 8;
 
-const PROGMEM char *ntpServer = "pool.ntp.org";
-#define NTP_TIMEOUT 1500
 
 
 
 void setup() {
+ 
   // put your setup code here, to run once:
 #ifdef _SERIAL
-	Serial.begin(74800);
+	Serial.begin(115200);
 	logg.logging("_SERIAL is defined");
 #else
 	logg.logging("_SERIAL is NOT defined");
 #endif
-  //pinMode(LED_BUILTIN,OUTPUT);
-  //digitalWrite(LED_BUILTIN,HIGH);
- 
   
-  httph.setup();
-  btns.add(BTN_PIN,LOW);
+  forceWiFi=true;
+    
+    if (connect2WiFi())
+    {
+      http_server = new HttpHelper();
+      //http_server->setup(&data);
+      http_server->setup();
+      msWiFi=0;
+    }
+    ms=0;
+  
+  //httph.setup();
+  //btns.add(BTN_PIN,HIGH);
   wsens.addSensor(SENSOR1,"Kuhnya");
   wsens.addSensor(SENSOR2,"Shahta");
   wsens.addSensor(SENSOR3,"Tualett");
-  //pinMode(D9,OUTPUT);
-  //pinMode(D7,INPUT_PULLUP);
-  //btns.add(D8,HIGH);
+  
   rtc.setup();  
   valve.setup(&rtc);
   wsens.setup(&rtc, &valve);
-
-
-    
-
-  //timeClient.begin();
-  //NTP.setInterval (63);
-  //NTP.setNTPTimeout (NTP_TIMEOUT);
-  //NTP.begin (ntpServer, timeZone, false);
-
-  
+  pinMode(2,OUTPUT);
+  if (btns.add(BTN_PIN, HIGH)==0xFF)
+  {
+    logg.logging("error add button");
+  }
+  else{
+    logg.logging("success add button");
+  }
 }
 
 void processButtons(long ms){
@@ -106,15 +116,15 @@ if (btns.getEvent(&ev,ms)){
 }
 }
 
-void processMQQT(char* topic, byte* payload, unsigned int length) {//callback function
-  String res="Message arrived ["+String(topic)+"] :";
-  logg.logging("Message arrived ["+String(topic)+"] ");
-  for (int i = 0; i < length; i++) {
-    res+=(char)payload[i];
-  }
+// void processMQQT(char* topic, byte* payload, unsigned int length) {//callback function
+//   String res="Message arrived ["+String(topic)+"] :";
+//   logg.logging("Message arrived ["+String(topic)+"] ");
+//   for (int i = 0; i < length; i++) {
+//     res+=(char)payload[i];
+//   }
   
-logg.logging(res);
-}
+// logg.logging(res);
+// }
 
 
 
@@ -123,7 +133,8 @@ int k=1;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  long ms = millis();
+ 
+  ms = millis();
   //httph.clientHandle();
   processButtons(ms); 
   wsens.processSensors(ms);
@@ -133,7 +144,7 @@ void loop() {
   i+=5*k;
   if (i>=1020) k=-1;
   else if (i<=5) k=1;
-  //analogWrite(LED_BUILTIN,i);
+ digitalWrite(2,digitalRead(BTN_PIN));
   
    
   if (i==500) {
@@ -156,43 +167,45 @@ void loop() {
 }
 
 boolean connect2WiFi(){
-    Serial.print("Connecting to ");
-    Serial.println(WIFI_SSID);
-    logg.logging("Connecting to "+String(WIFI_SSID));
-    // Set WiFi to station mode and disconnect from an AP if it was previously connected
-    WiFi.mode(WIFI_STA);
-    //WiFi.disconnect();
-   // delay(100);
-    WiFi.disconnect();
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    Serial.println("Connecting...");
+    uint8_t i=0;
     uint8_t cycles=0;
-    while (WiFi.status() != WL_CONNECTED) {
-      // Check to see if connecting failed.
-      // This is due to incorrect credentials
-      if (WiFi.status() == WL_CONNECT_FAILED) {
-        Serial.println("Failed to connect to WIFI. Please verify credentials: ");
-        Serial.print("SSID: ");
-        Serial.println(WIFI_SSID);
-        Serial.print("Password: ");
-        Serial.println(WIFI_PASS);
+    boolean success=false;
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    while (true)
+    {
+    for (i=0;i<WIFI_SSID.size();i++)
+    {
+      logg.logging("Connecting to "+String(WIFI_SSID[i])+" ...");
+      WiFi.begin(WIFI_SSID[i], WIFI_PASS[i]);
+      delay(2000);
+      if (WiFi.status() != WL_CONNECTED){
+        if (WiFi.status() == WL_CONNECT_FAILED) {
+                logg.logging("Failed to connect to WIFI. Please verify credentials SSID: "+String(WIFI_SSID[i])+" Password: "+String(WIFI_PASS[i]));
+               }else{//other error
+                logg.logging("Connect to "+String(WIFI_SSID[i])+" failed");
+              }
+        }
+          else{
+            success=true;
+            break;//from for
+        }
+      }
 
+      cycles++;
+      if (success || cycles>=3) 
+      {
+        break;//from while
       }
       delay(5000);
-      cycles++;
-      if (cycles>4) 
-      {
-      Serial.println("Working witout WiFi :(");  
-      return false;
-      break;
-      }
     }
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-    logg.logging("WiFi connected.IP address: "+WiFi.localIP().toString());
-    Serial.println("I'm connected to the internets!!");
-    return true;
-    
-}
+
+    if (success)
+    {
+      logg.logging("WiFi connected to "+String(WIFI_SSID[i])+". IP address: "+WiFi.localIP().toString());
+    }
+    else{
+      logg.logging("WiFi error. Working without network :(");
+    }
+    return success;
+ }

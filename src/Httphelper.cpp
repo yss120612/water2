@@ -10,7 +10,7 @@
 HttpHelper::HttpHelper()
 {
 	server = new AsyncWebServer(80);
-	if (!SPIFFS.begin()){
+	if (!SPIFFS.begin(true)){
 		logg.logging("FS Error");
 	}
 }
@@ -23,7 +23,7 @@ HttpHelper::~HttpHelper()
 
 void HttpHelper::setup() {
 	if (server == NULL) return;
-
+	
 	server->onNotFound(std::bind(&HttpHelper::handleNotFound, this, std::placeholders::_1));
 
 	server->on(

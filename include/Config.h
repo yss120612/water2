@@ -7,15 +7,14 @@
 
 extern const char * webpass;
 extern const char * webuser;
-extern const char * wifiuser;
-extern const char * wifipass;
-extern const char * wifiuser1;
-extern const char * wifipass1;
 extern const char * ntp_server;
 extern const char * mqtt_server; // Имя сервера MQTT
 extern const int    mqtt_port; // Порт для подключения к серверу MQTT
 extern const char * mqtt_user; // Логи от сервер
 extern const char * mqtt_pass; // Пароль от сервера
+extern const char * ntpServer;
+extern const char * fw;
+
 
 #define CHECKWIFI 300000
 
@@ -29,7 +28,7 @@ extern const char * mqtt_pass; // Пароль от сервера
 
 // CONNECTIONS:
 
-#define BTN_PIN 35
+#define BTN_PIN 32
 
 #define SPEAKER_PIN 26
 
@@ -44,6 +43,11 @@ extern const char * mqtt_pass; // Пароль от сервера
 
 #define MEM_ALARM 0
 #define MEM_VALVE 1
+
+
+#define timeZone  8
+
+#define NTP_TIMEOUT 1500
 
 
 #endif

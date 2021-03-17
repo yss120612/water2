@@ -39,8 +39,8 @@ private:
     const uint8_t max_alarms=3;
     const int check_time=3000; //every 3 sec
 
-    QList<alarm_t> _alrms;
-    QList<sensor_t> _snsrs;
+    //QList<alarm_t> _alrms;
+    QList<sensor_t *> _snsrs;
     unsigned long last_check;
     void alarm_event(uint8_t n);
     void disalarm_event(uint8_t n);

@@ -9,7 +9,7 @@ uint8_t Buttons::add(uint8_t pin, bool level) {
   uint8_t result;
   button_t b;
 
-  if (pin > 15)
+  if (pin > 36)
     return 0xFF;
   b.pin = pin;
   b.level = level;
@@ -22,7 +22,7 @@ uint8_t Buttons::add(uint8_t pin, bool level) {
   _btns.push_back(b);
   
   if (result < _btns.length()) {
-    pinMode(pin, level ? INPUT : INPUT_PULLUP);
+    pinMode(pin, level ? INPUT_PULLDOWN:INPUT_PULLUP);
 #ifdef INTR_EXCLUSIIVE
     ETS_GPIO_INTR_DISABLE();
     GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, BIT(pin));
@@ -89,8 +89,9 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
           _this->_btns[i].duration = 0xFFFF;
 
       //logg.logging("State="+String((inputs >> _this->_btns[i].pin) & 0x01));
+
+     // if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
       if ( (digitalRead(_this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
-      //if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
         if (! _this->_btns[i].pressed) {
           if (_this->_btns[i].duration > DBLCLICK_TIME) 
           {
