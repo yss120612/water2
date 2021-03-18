@@ -18,7 +18,7 @@ uint8_t Buttons::add(uint8_t pin, bool level) {
   //b.dblclickable = false;
   b.duration = 0;
   b.xdbl=0;
-  result = _btns.length();
+  //result = _btns.length();
   _btns.push_back(b);
   
   if (result < _btns.length()) {
@@ -74,24 +74,24 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
 #ifdef INTR_EXCLUSIIVE
   uint32_t status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
 #endif
-
+  
   if (_this->_btns.length()>0) {
     long ms=millis();
     uint32_t time = ms - _this->_isrtime;
     //uint32_t inputs = GPI;
     for (uint8_t i = 0; i < _this->_btns.length(); ++i) {
-      if (_this->_btns[i].paused)
-        continue;
-
+      if (_this->_btns[i].paused) continue;
+        //time=_this->_btns[i].isrtime==0?0:ms-_this->_btns[i].isrtime;
         if (time + _this->_btns[i].duration < 0xFFFF)
           _this->_btns[i].duration += time;
         else
           _this->_btns[i].duration = 0xFFFF;
 
       //logg.logging("State="+String((inputs >> _this->_btns[i].pin) & 0x01));
-
+      //logg.logging("press...dr="+String(digitalRead(_this->_btns[i].pin) & 0x01)+" level="+String(_this->_btns[i].level)+" pin="+String(_this->_btns[i].pin));
      // if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
-      if ( (digitalRead(_this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
+      if ((digitalRead(_this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
+        
         if (! _this->_btns[i].pressed) {
           if (_this->_btns[i].duration > DBLCLICK_TIME) 
           {
@@ -111,6 +111,7 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
              _this->_btns[i].xdbl += 1;
              _this->onChange(BTN_CLICK, i,_this->_btns[i].xdbl, ms);
           } else {
+            
             //_this->onChange(BTN_RELEASED, i);
           }
           _this->_btns[i].pressed = false;
@@ -132,6 +133,7 @@ evt.state=state;
 evt.count=cnt;
 evt.wait_time=m;
 int idx=-1;
+
 if (cnt>1){
   for (int k=0;k<_events.length();k++){
     if (_events[k].button==button && _events[k].state==BTN_CLICK && _events[k].count==(cnt-1)) idx=k;
@@ -141,6 +143,7 @@ if (cnt>1){
   return;
   }
 }
+
 _events.push_back(evt);
 }
 
