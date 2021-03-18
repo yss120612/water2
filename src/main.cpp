@@ -72,7 +72,7 @@ void setup() {
   valve.setup(&rtc);
   wsens.setup(&rtc, &valve);
   pinMode(2,OUTPUT);
-  if (btns.add(BTN_PIN, HIGH)==0xFF)
+  if (btns.add(BTN_PIN, LOW)==0xFF)
   {
     logg.logging("error add button");
   }
@@ -89,7 +89,6 @@ if (btns.getEvent(&ev,ms)){
   case BTN_CLICK:
     logg.logging("CLICK "+ String(ev.button)+" count="+String(ev.count)+" wait="+String(ms-ev.wait_time)+ " millis="+String(ms));
     if (ev.count==1){
-
       wsens.alarm();
     }
     else if (ev.count==2) {

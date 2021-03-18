@@ -17,14 +17,14 @@ const uint16_t CLICK_TIME = 20; // 20 ms.
 const uint16_t LONGCLICK_TIME = 1000; // 1 sec.
 const uint16_t DBLCLICK_TIME = 500; // 0.5 sec.
 
-struct __packed button_t {
-  uint8_t pin : 4;
-  uint8_t xdbl : 4;
-  bool level : 1;
-  bool paused : 1;
-  bool pressed : 2;
-  //bool dblclickable : 1;
+struct button_t {
+  uint8_t pin;
+  uint8_t xdbl;
+  bool level;
+  bool paused;
+  bool pressed;
   volatile uint16_t duration;
+  volatile uint32_t isrtime;
 };
 
 struct event_t {
