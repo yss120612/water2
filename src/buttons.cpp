@@ -79,6 +79,8 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
     long ms=millis();
     uint32_t time = ms - _this->_isrtime;
     //uint32_t inputs = GPI;
+    uint16_t duration;
+
     for (uint8_t i = 0; i < _this->_btns.length(); ++i) {
       if (_this->_btns[i].paused) continue;
         //time=_this->_btns[i].isrtime==0?0:ms-_this->_btns[i].isrtime;
@@ -86,7 +88,7 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
           _this->_btns[i].duration += time;
         else
           _this->_btns[i].duration = 0xFFFF;
-
+      uint16_t duration=ms-_this->_btns[i].isrtime;
       //logg.logging("State="+String((inputs >> _this->_btns[i].pin) & 0x01));
       //logg.logging("press...dr="+String(digitalRead(_this->_btns[i].pin) & 0x01)+" level="+String(_this->_btns[i].level)+" pin="+String(_this->_btns[i].pin));
      // if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
@@ -97,17 +99,20 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
           {
            _this->_btns[i].xdbl=0;
           }
-          _this->_btns[i].duration = 0;
+          //_this->_btns[i].duration = 0;
           _this->_btns[i].pressed = true;
+          _this->_btns[i].isrtime = ms;
           //_this->onChange(BTN_PRESSED, i);
         }
       } else { // Button released
         if (_this->_btns[i].pressed) { // Was pressed
-        
-          if (_this->_btns[i].duration >= LONGCLICK_TIME) {
+          
+          //if (_this->_btns[i].duration >= LONGCLICK_TIME) {
+            if (duration >= LONGCLICK_TIME) {
             _this->onChange(BTN_LONGCLICK, i,_this->_btns[i].xdbl);
             _this->_btns[i].xdbl = 0;
-          } else if (_this->_btns[i].duration >= CLICK_TIME) {
+          //} else if (_this->_btns[i].duration >= CLICK_TIME) {
+            } else if (duration >= CLICK_TIME) {
              _this->_btns[i].xdbl += 1;
              _this->onChange(BTN_CLICK, i,_this->_btns[i].xdbl, ms);
           } else {
@@ -115,7 +120,7 @@ void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
             //_this->onChange(BTN_RELEASED, i);
           }
           _this->_btns[i].pressed = false;
-          _this->_btns[i].duration = 0;
+          //_this->_btns[i].duration = 0;
         }
       }
     }
