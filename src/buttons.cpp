@@ -15,6 +15,7 @@ uint8_t Buttons::add(uint8_t pin, bool level) {
   b.level = level;
   b.paused = false;
   b.pressed = false;
+  //b.old_pressed=false;
   //b.dblclickable = false;
   b.duration = 0;
   b.xdbl=0;
@@ -29,7 +30,7 @@ uint8_t Buttons::add(uint8_t pin, bool level) {
     gpio_pin_intr_state_set(GPIO_ID_PIN(pin), GPIO_PIN_INTR_ANYEDGE);
     ETS_GPIO_INTR_ENABLE();
 #else
-    attachInterrupt(pin, [this]() { this->_isr(this); }, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(pin), std::bind(&Buttons::_isr, this), CHANGE);
 #endif
   result = _btns.length()-1;
   }
@@ -57,6 +58,7 @@ void Buttons::resume(uint8_t index) {
   if (_btns.length() > index) {
     _btns[index].paused = false;
     _btns[index].pressed = false;
+    //_btns[index].old_pressed = false;
    //_btns[index].dblclickable = false;
     _btns[index].duration = 0;
 #ifdef INTR_EXCLUSIIVE
@@ -65,71 +67,136 @@ void Buttons::resume(uint8_t index) {
     gpio_pin_intr_state_set(GPIO_ID_PIN(_btns[index].pin), GPIO_PIN_INTR_ANYEDGE);
     ETS_GPIO_INTR_ENABLE();
 #else
-    attachInterrupt(_btns[index].pin, [this]() { this->_isr(this); }, CHANGE);
+    //attachInterrupt(_btns[index].pin, [this]() { std::bind(this->_isr, this); }, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(_btns[index].pin), std::bind(&Buttons::_isr, this), CHANGE);
 #endif
   }
 }
 
-void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
-#ifdef INTR_EXCLUSIIVE
-  uint32_t status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
-#endif
+void ICACHE_RAM_ATTR Buttons::_isr() {
+
+  //intr_handler_t
   
-  if (_this->_btns.length()>0) {
+  if (this->_btns.length()>0) {
     long ms=millis();
-    uint32_t time = ms - _this->_isrtime;
+    //uint32_t time = ms - this->_isrtime;
     //uint32_t inputs = GPI;
     uint16_t duration;
-
-    for (uint8_t i = 0; i < _this->_btns.length(); ++i) {
-      if (_this->_btns[i].paused) continue;
-        //time=_this->_btns[i].isrtime==0?0:ms-_this->_btns[i].isrtime;
-        if (time + _this->_btns[i].duration < 0xFFFF)
-          _this->_btns[i].duration += time;
-        else
-          _this->_btns[i].duration = 0xFFFF;
-      uint16_t duration=ms-_this->_btns[i].isrtime;
-      //logg.logging("State="+String((inputs >> _this->_btns[i].pin) & 0x01));
-      //logg.logging("press...dr="+String(digitalRead(_this->_btns[i].pin) & 0x01)+" level="+String(_this->_btns[i].level)+" pin="+String(_this->_btns[i].pin));
-     // if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
-      if ((digitalRead(_this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
+    bool state;
+    for (uint8_t i = 0; i < this->_btns.length(); ++i) {
+      if (this->_btns[i].paused) continue;
+      state=(digitalRead(this->_btns[i].pin) & 0x01) == this->_btns[i].level;
+      if (state==_btns[i].pressed) continue;
+      //time=this->_btns[i].isrtime==0?0:ms-this->_btns[i].isrtime;
+      //   if (time + this->_btns[i].duration < 0xFFFF)
+      //     this->_btns[i].duration += time;
+      //   else
+      //     this->_btns[i].duration = 0xFFFF;
+      // uint16_t duration=ms-this->_btns[i].isrtime;
+      //logg.logging("State="+String((inputs >> this->_btns[i].pin) & 0x01));
+      //logg.logging("press...dr="+String(digitalRead(this->_btns[i].pin) & 0x01)+" level="+String(this->_btns[i].level)+" pin="+String(this->_btns[i].pin));
+     // if (((inputs >> this->_btns[i].pin) & 0x01) == this->_btns[i].level) { // Button pressed
+      _btns[i].duration=ms-_btns[i].isrtime;
+      if (state) { // Button pressed
         
-        if (! _this->_btns[i].pressed) {
-          if (_this->_btns[i].duration > DBLCLICK_TIME) 
+        //if (! this->_btns[i].pressed) {
+          if (this->_btns[i].duration > DBLCLICK_TIME) 
           {
-           _this->_btns[i].xdbl=0;
+           this->_btns[i].xdbl=0;
           }
-          //_this->_btns[i].duration = 0;
-          _this->_btns[i].pressed = true;
-          _this->_btns[i].isrtime = ms;
-          //_this->onChange(BTN_PRESSED, i);
-        }
+          this->_btns[i].duration = 0;
+          //this->_btns[i].pressed = true;
+          //this->_btns[i].isrtime = ms;
+          //this->onChange(BTN_PRESSED, i);
+        
       } else { // Button released
-        if (_this->_btns[i].pressed) { // Was pressed
-          
-          //if (_this->_btns[i].duration >= LONGCLICK_TIME) {
-            if (duration >= LONGCLICK_TIME) {
-            _this->onChange(BTN_LONGCLICK, i,_this->_btns[i].xdbl);
-            _this->_btns[i].xdbl = 0;
-          //} else if (_this->_btns[i].duration >= CLICK_TIME) {
-            } else if (duration >= CLICK_TIME) {
-             _this->_btns[i].xdbl += 1;
-             _this->onChange(BTN_CLICK, i,_this->_btns[i].xdbl, ms);
-          } else {
+        //if (this->_btns[i].pressed) { // Was pressed
+           
+          //if (this->_btns[i].duration >= LONGCLICK_TIME) {
+            if (_btns[i].duration >= LONGCLICK_TIME) {
+            this->onChange(BTN_LONGCLICK, i,this->_btns[i].xdbl);
+            this->_btns[i].xdbl = 0;
+          //} else if (this->_btns[i].duration >= CLICK_TIME) {
+            } else if (_btns[i].duration >= CLICK_TIME) {
+             this->_btns[i].xdbl += 1;
+             this->onChange(BTN_CLICK, i,this->_btns[i].xdbl, ms);
+            }
+          //} else {
             
-            //_this->onChange(BTN_RELEASED, i);
-          }
-          _this->_btns[i].pressed = false;
-          //_this->_btns[i].duration = 0;
-        }
+            //this->onChange(BTN_RELEASED, i);
+          //}
+          //this->_btns[i].pressed = false;
+          //this->_btns[i].duration = 0;
+        //}
       }
+      _btns[i].pressed=state;
+      _btns[i].isrtime=ms;
     }
   }
-#ifdef INTR_EXCLUSIIVE
-  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, status);
-#endif
-  _this->_isrtime = millis();
+  //this->_isrtime = millis();
 }
+
+
+// void ICACHE_RAM_ATTR Buttons::_isr(Buttons *_this) {
+// #ifdef INTR_EXCLUSIIVE
+//   uint32_t status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
+// #endif
+//   //intr_handler_t
+//   if (_this->_btns.length()>0) {
+//     long ms=millis();
+//     uint32_t time = ms - _this->_isrtime;
+//     //uint32_t inputs = GPI;
+//     uint16_t duration;
+
+//     for (uint8_t i = 0; i < _this->_btns.length(); ++i) {
+//       if (_this->_btns[i].paused) continue;
+//         //time=_this->_btns[i].isrtime==0?0:ms-_this->_btns[i].isrtime;
+//         if (time + _this->_btns[i].duration < 0xFFFF)
+//           _this->_btns[i].duration += time;
+//         else
+//           _this->_btns[i].duration = 0xFFFF;
+//       uint16_t duration=ms-_this->_btns[i].isrtime;
+//       //logg.logging("State="+String((inputs >> _this->_btns[i].pin) & 0x01));
+//       //logg.logging("press...dr="+String(digitalRead(_this->_btns[i].pin) & 0x01)+" level="+String(_this->_btns[i].level)+" pin="+String(_this->_btns[i].pin));
+//      // if (((inputs >> _this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
+//       if ((digitalRead(_this->_btns[i].pin) & 0x01) == _this->_btns[i].level) { // Button pressed
+        
+//         if (! _this->_btns[i].pressed) {
+//           if (_this->_btns[i].duration > DBLCLICK_TIME) 
+//           {
+//            _this->_btns[i].xdbl=0;
+//           }
+//           //_this->_btns[i].duration = 0;
+//           _this->_btns[i].pressed = true;
+//           _this->_btns[i].isrtime = ms;
+//           //_this->onChange(BTN_PRESSED, i);
+//         }
+//       } else { // Button released
+//         if (_this->_btns[i].pressed) { // Was pressed
+          
+//           //if (_this->_btns[i].duration >= LONGCLICK_TIME) {
+//             if (duration >= LONGCLICK_TIME) {
+//             _this->onChange(BTN_LONGCLICK, i,_this->_btns[i].xdbl);
+//             _this->_btns[i].xdbl = 0;
+//           //} else if (_this->_btns[i].duration >= CLICK_TIME) {
+//             } else if (duration >= CLICK_TIME) {
+//              _this->_btns[i].xdbl += 1;
+//              _this->onChange(BTN_CLICK, i,_this->_btns[i].xdbl, ms);
+//           } else {
+            
+//             //_this->onChange(BTN_RELEASED, i);
+//           }
+//           _this->_btns[i].pressed = false;
+//           //_this->_btns[i].duration = 0;
+//         }
+//       }
+//     }
+//   }
+// #ifdef INTR_EXCLUSIIVE
+//   GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, status);
+// #endif
+//   _this->_isrtime = millis();
+// }
 
 void Buttons::onChange(buttonstate_t state, uint8_t button, uint8_t cnt, long m){
 event_t evt;
@@ -148,7 +215,6 @@ if (cnt>1){
   return;
   }
 }
-
 _events.push_back(evt);
 }
 
