@@ -72,13 +72,11 @@ void setup() {
   valve.setup(&rtc);
   wsens.setup(&rtc, &valve);
   pinMode(2,OUTPUT);
-  if (btns.add(BTN_PIN, LOW)==0xFF)
-  {
-    logg.logging("error add button");
-  }
-  else{
-    logg.logging("success add button");
-  }
+  
+  btns.add(14, LOW);
+  btns.add(BTN_PIN, LOW);
+  btns.add(12, LOW);
+  
 }
 
 void processButtons(long ms){

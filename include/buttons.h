@@ -22,7 +22,7 @@ struct button_t {
   uint8_t xdbl;
   bool level;
   bool paused;
-  bool pressed;
+  volatile bool pressed;
   volatile uint16_t duration;
   volatile uint32_t isrtime;
 };
@@ -63,7 +63,8 @@ protected:
   void cleanup(void *ptr);
   bool match(uint8_t index, const void *t);
 
-  static void _isr(Buttons *_this);
+  //static void _isr(Buttons *_this);
+  void _isr();
   virtual void onChange(buttonstate_t state, uint8_t button, uint8_t cnt=0, long wt=0);
   
 
