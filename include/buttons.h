@@ -42,7 +42,7 @@ public:
 
 
 Buttons()  {
-_isrtime=0;
+_//isrtime=0;
 #ifdef INTR_EXCLUSIIVE
     ETS_GPIO_INTR_ATTACH(_isr, this);
 #endif
@@ -68,7 +68,7 @@ protected:
   virtual void onChange(buttonstate_t state, uint8_t button, uint8_t cnt=0, long wt=0);
   
 
-  uint32_t _isrtime;
+  //uint32_t _isrtime;
 };
 
 

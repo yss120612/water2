@@ -72,10 +72,9 @@ void setup() {
   valve.setup(&rtc);
   wsens.setup(&rtc, &valve);
   pinMode(2,OUTPUT);
-  
-  btns.add(14, LOW);
+ 
   btns.add(BTN_PIN, LOW);
-  btns.add(12, LOW);
+ 
   
 }
 
@@ -86,13 +85,13 @@ if (btns.getEvent(&ev,ms)){
   {
   case BTN_CLICK:
     logg.logging("CLICK "+ String(ev.button)+" count="+String(ev.count)+" wait="+String(ms-ev.wait_time)+ " millis="+String(ms));
-    if (ev.count==1){
+    if (ev.count==2 and ev.button==0){
       wsens.alarm();
     }
-    else if (ev.count==2) {
+    else if (ev.count==3 and ev.button==0) {
       wsens.disalarm();
     }
-    if (ev.count==3) {
+    if (ev.count==4 and ev.button==0) {
       valve.swc();
     }
     break;

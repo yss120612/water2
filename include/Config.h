@@ -20,10 +20,10 @@ extern const char * fw;
 
 #define TIME_OFFSET 8
 
-#define SENSOR1 27
-#define SENSOR2 14
-#define SENSOR3 12
-#define SENSOR4 13
+#define SENSOR1 15
+#define SENSOR2 2
+#define SENSOR3 4
+#define SENSOR4 16
 
 
 // CONNECTIONS:
@@ -34,12 +34,12 @@ extern const char * fw;
 
 #define LED_PIN 25
 
-#define DS1302_CLK 17 
-#define DS1302_DAT 4
-#define DS1302_RST 16
+#define DS1302_CLK 14
+#define DS1302_DAT 12
+#define DS1302_RST 13
 
-#define PIN_VOPEN 2
-#define PIN_VCLOSE 15
+#define PIN_VOPEN 5
+#define PIN_VCLOSE 17
 
 #define MEM_ALARM 0
 #define MEM_VALVE 1
