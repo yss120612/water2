@@ -42,7 +42,7 @@ public:
 
 
 Buttons()  {
-_//isrtime=0;
+//isrtime=0;
 #ifdef INTR_EXCLUSIIVE
     ETS_GPIO_INTR_ATTACH(_isr, this);
 #endif
