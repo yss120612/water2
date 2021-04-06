@@ -5,6 +5,7 @@
 
 #include "Log.h"
 #include "HttpHelper.h"
+#include "wp_system.h"
 #include "Rtc.h"
 #include "Buttons.h"
 #include "wsensors.h"
@@ -34,7 +35,7 @@ Rtc1302 rtc;
 Buttons btns;
 Wsensors wsens;
 Valve valve(PIN_VOPEN,PIN_VCLOSE);
-
+WP_system wp_sys;
 //NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);//0ne per day
 //NTPClient timeClient(ntpUDP);//0ne per day
 
@@ -68,9 +69,8 @@ void setup() {
   wsens.addSensor(SENSOR2,"Shahta");
   wsens.addSensor(SENSOR3,"Tualett");
   
-  rtc.setup();  
-  valve.setup(&rtc);
-  wsens.setup(&rtc, &valve);
+  wp_sys.setup(&valve,&wsens,&rtc);
+
   pinMode(2,OUTPUT);
  
   btns.add(BTN_PIN, LOW);
@@ -133,9 +133,10 @@ void loop() {
   ms = millis();
   //httph.clientHandle();
   processButtons(ms); 
-  wsens.processSensors(ms);
-  valve.processValves(ms);
-  rtc.loop(ms);
+  // wsens.processSensors(ms);
+  // valve.processValves(ms);
+  // rtc.loop(ms);
+  wp_sys.process(ms);
   delay(5);
   i+=5*k;
   if (i>=1020) k=-1;

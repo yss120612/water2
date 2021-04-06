@@ -6,11 +6,11 @@
 #include "Rtc.h"
 #include "valve.h"
 
-struct alarm_t {
-    uint8_t sensorN;
-    uint8_t count;
-    volatile long wait_time;
-  };
+// struct alarm_t {
+//     uint8_t sensorN;
+//     uint8_t count;
+//     volatile long wait_time;
+//   };
 
 struct sensor_t{
     String name;
