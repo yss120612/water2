@@ -6,11 +6,13 @@
 #include "Log.h"
 #include "HttpHelper.h"
 #include "wp_system.h"
+
 #include "Rtc.h"
 #include "Buttons.h"
 #include "wsensors.h"
 #include "valve.h"
 #include "Config.h"
+
 
 //HttpHelper httph;
 std::array <char*,2> WIFI_SSID {"Yss_GIGA","academy"};
@@ -30,12 +32,13 @@ boolean forceWiFi;//если не задалось с первого раза п
 extern boolean connect2WiFi();
 long ms;
 
+WP_system wp_sys;
 HttpHelper * http_server;
 Rtc1302 rtc;
 Buttons btns;
 Wsensors wsens;
-Valve valve(PIN_VOPEN,PIN_VCLOSE);
-WP_system wp_sys;
+Valve valve(PIN_VOPEN,PIN_VCLOSE,LOW);
+
 //NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);//0ne per day
 //NTPClient timeClient(ntpUDP);//0ne per day
 
@@ -58,7 +61,7 @@ void setup() {
     {
       http_server = new HttpHelper();
       //http_server->setup(&data);
-      http_server->setup();
+      http_server->setup(&wp_sys);
       msWiFi=0;
     }
     ms=0;
@@ -66,12 +69,12 @@ void setup() {
   //httph.setup();
   //btns.add(BTN_PIN,HIGH);
   wsens.addSensor(SENSOR1,"Kuhnya");
-  wsens.addSensor(SENSOR2,"Shahta");
-  wsens.addSensor(SENSOR3,"Tualett");
+  wsens.addSensor(SENSOR3,"Shahta");
+  wsens.addSensor(SENSOR4,"Tualett");
   
   wp_sys.setup(&valve,&wsens,&rtc);
 
-  pinMode(2,OUTPUT);
+  //pinMode(2,OUTPUT);
  
   btns.add(BTN_PIN, LOW);
  
@@ -86,13 +89,14 @@ if (btns.getEvent(&ev,ms)){
   case BTN_CLICK:
     logg.logging("CLICK "+ String(ev.button)+" count="+String(ev.count)+" wait="+String(ms-ev.wait_time)+ " millis="+String(ms));
     if (ev.count==2 and ev.button==0){
-      wsens.alarm();
+      wp_sys.close_valve();
     }
     else if (ev.count==3 and ev.button==0) {
-      wsens.disalarm();
+      wp_sys.disalarm();
     }
     if (ev.count==4 and ev.button==0) {
-      valve.swc();
+      wp_sys.switch_valve();
+      logg.logging("swc at "+rtc.timestring());
     }
     break;
   case BTN_LONGCLICK:
@@ -138,13 +142,13 @@ void loop() {
   // rtc.loop(ms);
   wp_sys.process(ms);
   delay(5);
-  i+=5*k;
-  if (i>=1020) k=-1;
-  else if (i<=5) k=1;
- digitalWrite(2,digitalRead(BTN_PIN));
+//   i+=5*k;
+//   if (i>=1020) k=-1;
+//   else if (i<=5) k=1;
+//  digitalWrite(2,digitalRead(BTN_PIN));
   
    
-  if (i==500) {
+  // if (i==500) {
     //tone(SPEAKER_PIN,1000,200);
    //logg.logging("PinLevel="+String(digitalRead(D7)));
   //if (k==0)    rtc.setup();
@@ -154,7 +158,7 @@ void loop() {
     //i=0;
     
     //digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));
-  }
+  // }
   if (ms-msWiFi>CHECKWIFI){
     msWiFi=ms;
     if (forceWiFi && WiFi.status()!=WL_CONNECTED){

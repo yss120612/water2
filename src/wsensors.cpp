@@ -13,32 +13,21 @@ Wsensors::~Wsensors()
     _snsrs.clear();
 }
 
-void Wsensors::setup(Rtc1302 * r, Valve *v){ 
-        rtc=r;
-        vlv=v;
-if (rtc->getMemory(MEM_ALARM)){
-        alarm();
-        }
-};
- 
+void Wsensors::setup(WP_system * ws, uint8_t lvl){ 
+        //rtc=r;
+        //vlv=v;
+        wp_sys=ws;
+        level=lvl;
 
-void Wsensors::alarm()
-{
-    ALARM=1;
-    rtc->setMemory(1,MEM_ALARM);
-    vlv->close();
-}
+};
+
 
 void Wsensors::disalarm()
 {
-    ALARM=0;
-    vlv->open();
-    rtc->setMemory(0,MEM_ALARM);
     for (uint8_t i = 0; i < _snsrs.size(); i++)
     {
         _snsrs[i]->alarmscount=0;
     }
-    logg.logging("Disalarmed!");
 }
 
 void Wsensors::alarm_event(uint8_t n){
@@ -46,8 +35,8 @@ void Wsensors::alarm_event(uint8_t n){
     {
         _snsrs[n]->alarmscount++;
         if (_snsrs[n]->alarmscount>=max_alarms){
-        alarm();
         logg.logging("Alarm!!! Check "+_snsrs[n]->name+" sensor");
+        wp_sys->alarm(n);
         }
     }
 }
@@ -64,19 +53,21 @@ sensor_t * s = new sensor_t();
 s->name=name;
 s->pin=pin;
 s->alarmscount=0;
-pinMode(pin,INPUT_PULLUP);
+pinMode(pin,level?INPUT_PULLDOWN:INPUT_PULLUP);
 _snsrs.push_back(s);
 }
 
 
 
 void Wsensors::processSensors(long ms){
+    
     if (ms-last_check<check_time) return;
     last_check=ms;
-    if (ALARM>0) return;
+    if (wp_sys->isALARM()) return;
    for (uint8_t i = 0; i < _snsrs.size(); i++)
     {
-        if ( digitalRead(_snsrs[i]->pin)==LOW)
+        logg.logging("i="+String(i)+" level="+String(digitalRead(_snsrs[i]->pin)));
+        if ( digitalRead(_snsrs[i]->pin)==level)
         alarm_event(i);
         else
         disalarm_event(i);

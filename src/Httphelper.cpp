@@ -21,9 +21,9 @@ HttpHelper::~HttpHelper()
 	SPIFFS.end();
 }
 
-void HttpHelper::setup() {
+void HttpHelper::setup(WP_system *ws) {
 	if (server == NULL) return;
-	
+	ws_sys=ws;
 	server->onNotFound(std::bind(&HttpHelper::handleNotFound, this, std::placeholders::_1));
 
 	server->on(

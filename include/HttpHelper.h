@@ -7,6 +7,7 @@
 
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include "wp_system.h"
 //#include "ESP8266WepSpiffsUpdater.h"
 
 
@@ -17,7 +18,7 @@ public:
 	HttpHelper();
 	~HttpHelper();
 	//void clientHandle();
-	void setup();
+	void setup(WP_system *ws);
 
 private:
 	void handleNotFound(AsyncWebServerRequest * request);
@@ -30,6 +31,7 @@ private:
 	void handleUpdateOS(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
 	AsyncWebServer * server;
 	uint8_t counter;
+	WP_system *ws_sys;
 };
 
 #endif
