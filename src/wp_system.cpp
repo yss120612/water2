@@ -16,17 +16,19 @@ void WP_system::setup(Valve * v, Wsensors * w, Rtc1302 * r){
     rtc->setup();  
     vlv->setup(this);
     ws->setup(this,LOW);
+    
+    ALARM=0;
+    if (rtc->getMemory(MEM_ALARM)){
+       alarm(rtc->getMemory(MEM_ALARM)-1);
+    }
+
     if (rtc->getMemory(MEM_VALVE)>0)
     {
-        open_valve();
+       open_valve();
     }
     else
     {
-     close_valve();
-    }
-    ALARM=0;
-    if (rtc->getMemory(MEM_ALARM)){
-        alarm(rtc->getMemory(MEM_ALARM));
+       close_valve();
     }
 
 }
@@ -35,7 +37,7 @@ void WP_system::process(long ms){
     ws->processSensors(ms);
     vlv->processValves(ms);
     rtc->loop(ms);
-    if(ms-last_time>CHECK_TIME){//one
+    if(ms-last_time>CHECK_TIME){//one per hour
         last_time=ms;
         if (rtc->check_time(1,1)) vlv->swc();// in 1 st day of month in 1 hour of night
     }
@@ -46,30 +48,32 @@ void WP_system::process(long ms){
 //     rtc->setMemory(open?1:0,MEM_VALVE);
 // }
 
-void WP_system::close_valve()
+bool WP_system::close_valve()
 {
+    if (!vlv->close()) return false;
     rtc->setMemory(0,MEM_VALVE);
-    vlv->close();
+    return true;
 }
 
-void WP_system::open_valve()
+bool WP_system::open_valve()
 {
-    rtc->setMemory(0,MEM_VALVE);
-    vlv->close();
+    if (!vlv->open()) return false;
+    rtc->setMemory(1,MEM_VALVE);
+    return true;
 }
 
 
-void WP_system::switch_valve()
+bool WP_system::switch_valve()
 {
-    vlv->swc();
+    return vlv->swc();
 }
 
 
 void WP_system::alarm(uint8_t sensor_no){
+    if (!close_valve()) return;
     ALARM=1;
     rtc->setMemory(sensor_no+1,MEM_ALARM);
-    close_valve();
-    //logg.logging("Alarm!");
+    logg.logging("Alarm!!! Check "+ws->getSensorName(sensor_no)+" sensor");
 }
 
 void WP_system::disalarm(){

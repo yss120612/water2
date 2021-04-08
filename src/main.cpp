@@ -55,12 +55,10 @@ void setup() {
 	logg.logging("_SERIAL is NOT defined");
 #endif
   
-  forceWiFi=true;
-    
+    forceWiFi=true;
     if (connect2WiFi())
     {
       http_server = new HttpHelper();
-      //http_server->setup(&data);
       http_server->setup(&wp_sys);
       msWiFi=0;
     }
@@ -159,12 +157,19 @@ void loop() {
     
     //digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));
   // }
+
+
   if (ms-msWiFi>CHECKWIFI){
     msWiFi=ms;
     if (forceWiFi && WiFi.status()!=WL_CONNECTED){
-      connect2WiFi();
+      if (connect2WiFi() && !http_server)
+      {
+        http_server = new HttpHelper();
+        http_server->setup(&wp_sys);
+      }
     }
   }
+
 }
 
 boolean connect2WiFi(){
@@ -173,6 +178,7 @@ boolean connect2WiFi(){
     boolean success=false;
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
+    WiFi.scanNetworks();
     while (true)
     {
     for (i=0;i<WIFI_SSID.size();i++)

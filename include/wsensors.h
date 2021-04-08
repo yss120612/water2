@@ -27,7 +27,7 @@ class Wsensors
     //bool isALARM(){return ALARM>0;}
     //void alarm();
     void disalarm();
-    
+    String getSensorName(uint8_t n);
 private:
     const uint8_t max_alarms=3;
     const int check_time=3000; //every 3 sec

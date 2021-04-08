@@ -38,9 +38,9 @@ private:
     WP_system * wp_sys;
 public:
 void setup(WP_system * wp);
-void open();
-void swc();
-void close();
+bool open();
+bool swc();
+bool close();
 void processValves(long m);
     Valve(uint8_t OP, uint8_t CL, uint8_t lv=HIGH);
     ~Valve();

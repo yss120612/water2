@@ -24,26 +24,33 @@ Valve::~Valve()
 {
 }
 
-void Valve::open()
+bool Valve::open()
 {
+    if (action!=RELAXED) return false;
+    logg.logging("open");
     action=INOPEN;
     digitalWrite(VOPEN,level);
     run();
+    return true;
 }
 
-void Valve::close()
+bool Valve::close()
 {
+    if (action!=RELAXED) return false;
+    logg.logging("close");
     action=INCLOSE;
     digitalWrite(VCLOSE,level);
     run();
+    return true;
 }
 
-void Valve::swc()
+bool Valve::swc()
 {
-    if (status!=OPN) return;
+    if (status!=OPN || action!=RELAXED) return false;
     digitalWrite(VCLOSE,level);
     action=INSWITCH;
     run();
+    return true;
 }
 
 void Valve::run()

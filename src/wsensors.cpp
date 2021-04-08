@@ -35,9 +35,18 @@ void Wsensors::alarm_event(uint8_t n){
     {
         _snsrs[n]->alarmscount++;
         if (_snsrs[n]->alarmscount>=max_alarms){
-        logg.logging("Alarm!!! Check "+_snsrs[n]->name+" sensor");
         wp_sys->alarm(n);
         }
+    }
+}
+
+String Wsensors::getSensorName(uint8_t n){
+if (n>=0 && n< _snsrs.size())
+    {
+        return _snsrs[n]->name;
+    }
+    else{
+        return "Unknoun";
     }
 }
 

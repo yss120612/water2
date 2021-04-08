@@ -2,6 +2,8 @@
     "files.associations": {
         "functional": "cpp",
         "typeinfo": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
     }
 }

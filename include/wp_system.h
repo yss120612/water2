@@ -19,9 +19,9 @@ class WP_system
     void process(long ms);
     
     void alarm(uint8_t sensor_no);
-    void open_valve();
-    void close_valve();
-    void switch_valve();
+    bool open_valve();
+    bool close_valve();
+    bool switch_valve();
     void disalarm();
     bool isALARM(){return ALARM>0;}
     private:
