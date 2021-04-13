@@ -30,7 +30,8 @@ void HttpHelper::setup(WP_system *ws) {
 	"/update", 
 	HTTP_POST, 
 	[](AsyncWebServerRequest *request){
-  	  request->redirect("/");
+  	  //request->redirect("/");
+		 request->send(200);
     }, 
 	std::bind(&HttpHelper::handleUpdateOS, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6)
 	);
@@ -73,7 +74,7 @@ server->on(
 
 void HttpHelper::handleRoot(AsyncWebServerRequest * request) {
 	
-	  if (!request->authenticate("Yss1", "bqt3"))
+	  if (!request->authenticate(httpLogin, httpPass))
 		return request->requestAuthentication();
 		handleFile("/index.htm","text/html", request);
 	
@@ -86,7 +87,7 @@ void HttpHelper::handleLog(AsyncWebServerRequest * request)
 }
 
 void HttpHelper::handleUpdate(AsyncWebServerRequest * request) {
-	  if (!request->authenticate("Yss1", "bqt3"))
+	  if (!request->authenticate(httpLogin, httpPass))
 		return request->requestAuthentication();
 	String resp = F("<!DOCTYPE html>\n<html>\n<head>\n");
 	resp += F("<meta charset = \"utf-8\">\n");

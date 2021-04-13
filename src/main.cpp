@@ -14,15 +14,10 @@
 #include "Config.h"
 
 
-//HttpHelper httph;
 std::array <char*,2> WIFI_SSID {"Yss_GIGA","academy"};
 std::array <char*,2> WIFI_PASS {"bqt3bqt3","123qweasd"};
-//const char* WIFI_SSID [] = {"Yss_GIGA","academy"};
-//const char* WIFI_PASS [] = {"bqt3bqt3","123qweasd"};
-//const char* WIFI_SSID1 = "academy";
-//const char* WIFI_PASS1 = "123qweasd";
-const PROGMEM char *ntpServer = "pool.ntp.org";
-const char* fw = "Running firmware v. 2.1";
+
+const char* fw = "Running firmware v. 2.2";
 
 
 
@@ -54,7 +49,7 @@ void setup() {
 #else
 	logg.logging("_SERIAL is NOT defined");
 #endif
-  
+logg.logging(fw);  
     forceWiFi=true;
     if (connect2WiFi())
     {
@@ -169,7 +164,6 @@ void loop() {
       }
     }
   }
-
 }
 
 boolean connect2WiFi(){
@@ -178,14 +172,16 @@ boolean connect2WiFi(){
     boolean success=false;
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
-    WiFi.scanNetworks();
+
+    
+	
     while (true)
     {
     for (i=0;i<WIFI_SSID.size();i++)
     {
       logg.logging("Connecting to "+String(WIFI_SSID[i])+" ...");
       WiFi.begin(WIFI_SSID[i], WIFI_PASS[i]);
-      delay(2000);
+      delay(5000);
       if (WiFi.status() != WL_CONNECTED){
         if (WiFi.status() == WL_CONNECT_FAILED) {
                 logg.logging("Failed to connect to WIFI. Please verify credentials SSID: "+String(WIFI_SSID[i])+" Password: "+String(WIFI_PASS[i]));

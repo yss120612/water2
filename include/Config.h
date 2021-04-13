@@ -12,8 +12,10 @@ extern const char * mqtt_server; // Имя сервера MQTT
 extern const int    mqtt_port; // Порт для подключения к серверу MQTT
 extern const char * mqtt_user; // Логи от сервер
 extern const char * mqtt_pass; // Пароль от сервера
-extern const char * ntpServer;
 extern const char * fw;
+extern const PROGMEM char *httpLogin;
+extern const PROGMEM char *httpPass;
+
 
 
 #define CHECKWIFI 300000
