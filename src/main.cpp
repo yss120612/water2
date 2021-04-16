@@ -5,6 +5,7 @@
 
 #include "Log.h"
 #include "HttpHelper.h"
+#include "MQTTclient.h""
 #include "wp_system.h"
 
 #include "Rtc.h"
@@ -29,6 +30,7 @@ long ms;
 
 WP_system wp_sys;
 HttpHelper * http_server;
+MqttClient * mqtt;
 Rtc1302 rtc;
 Buttons btns;
 Wsensors wsens;
@@ -55,6 +57,8 @@ logg.logging(fw);
     {
       http_server = new HttpHelper();
       http_server->setup(&wp_sys);
+      mqtt = new MqttClient();
+      mqtt->setup(&wp_sys);
       msWiFi=0;
     }
     ms=0;
@@ -153,18 +157,27 @@ void loop() {
     //digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));
   // }
 
+ if (mqtt) mqtt->loop(ms);
 
   if (ms-msWiFi>CHECKWIFI){
     msWiFi=ms;
     if (forceWiFi && WiFi.status()!=WL_CONNECTED){
-      if (connect2WiFi() && !http_server)
+      if (connect2WiFi())
+      {
+      if(!http_server)
       {
         http_server = new HttpHelper();
         http_server->setup(&wp_sys);
       }
+      if (!mqtt){
+        mqtt = new MqttClient();
+        mqtt->setup(&wp_sys);
+      }
+    }
+    }
     }
   }
-}
+
 
 boolean connect2WiFi(){
     uint8_t i=0;
