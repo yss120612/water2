@@ -42,7 +42,7 @@ void MqttClient::reconnect() {
       // ... and resubscribe
       client->subscribe("/user/yss1/161/valve");
     } else {
-      logg.logging("failed, rc="+client->state()+" try again in 5 seconds");
+      logg.logging("failed, rc="+client->state()+String(" try again in 5 seconds"));
       err++;
       delay(5000);
     }
