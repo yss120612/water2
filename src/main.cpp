@@ -52,6 +52,17 @@ void setup() {
 	logg.logging("_SERIAL is NOT defined");
 #endif
 logg.logging(fw);  
+
+ wsens.addSensor(SENSOR1,"Kuhnya");
+ wsens.addSensor(SENSOR3,"Shahta");
+ wsens.addSensor(SENSOR4,"Tualett");
+  
+ wp_sys.setup(&valve,&wsens,&rtc);
+
+  //pinMode(2,OUTPUT);
+ 
+ btns.add(BTN_PIN, LOW);
+
     forceWiFi=true;
     if (connect2WiFi())
     {
@@ -65,15 +76,7 @@ logg.logging(fw);
   
   //httph.setup();
   //btns.add(BTN_PIN,HIGH);
-  wsens.addSensor(SENSOR1,"Kuhnya");
-  wsens.addSensor(SENSOR3,"Shahta");
-  wsens.addSensor(SENSOR4,"Tualett");
-  
-  wp_sys.setup(&valve,&wsens,&rtc);
-
-  //pinMode(2,OUTPUT);
  
-  btns.add(BTN_PIN, LOW);
  
   
 }

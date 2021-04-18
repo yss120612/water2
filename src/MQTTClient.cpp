@@ -20,13 +20,17 @@
     };
 
     void MqttClient::callback(char* topic, byte* payload, unsigned int length){
-    Serial.print("Message arrived [");
-    Serial.print(topic);
-    Serial.print("] ");
+    String mess="";
+    String top=topic;
     for (int i=0;i<length;i++) {
-        Serial.print((char)payload[i]);
+        mess+=(char)payload[i];
     }
-    Serial.println();
+    logg.logging("Message arrived ["+String(topic)+String("] = ")+mess);
+    if (top.equals("valve")){
+
+    }else if (top.equals("alarm")){
+
+    }
     }
 
 void MqttClient::reconnect() {
@@ -38,7 +42,11 @@ void MqttClient::reconnect() {
     if (client->connect("ESP32Client-233",mqtt_user,mqtt_pass)) {
       logg.logging("connected");
       // Once connected, publish an announcement...
-      client->publish("/user/yss1/161/outTopic","hello world");
+      client->publish("/user/yss1/161/alarm","0");
+      client->publish("/user/yss1/161/"+,"0");
+      client->publish("/user/yss1/161/ws2","0");
+      client->publish("/user/yss1/161/ws3","0");
+      client->publish("/user/yss1/161/ws4","0");
       // ... and resubscribe
       client->subscribe("/user/yss1/161/valve");
     } else {
