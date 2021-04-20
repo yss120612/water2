@@ -75,7 +75,7 @@ void Wsensors::processSensors(long ms){
     if (wp_sys->isALARM()) return;
    for (uint8_t i = 0; i < _snsrs.size(); i++)
     {
-        logg.logging("i="+String(i)+" level="+String(digitalRead(_snsrs[i]->pin)));
+        //logg.logging("i="+String(i)+" level="+String(digitalRead(_snsrs[i]->pin)));
         if ( digitalRead(_snsrs[i]->pin)==level)
         alarm_event(i);
         else

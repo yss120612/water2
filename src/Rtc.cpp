@@ -29,12 +29,9 @@ _tw=new ThreeWire(DS1302_DAT,DS1302_CLK,DS1302_RST);// IO, SCLK, CE
 
 _rtc= new RtcDS1302<ThreeWire>(*_tw);
 _interval=interval;
-ntpUDP=new WiFiUDP();
 
-timeClient = new NTPClient(*ntpUDP ,ntp_server , 3600*TIME_OFFSET, _interval);
-timeClient->begin();
 //RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-timeClient->begin();
+
 _rtc->Begin();
 _rtc->SetIsRunning(true);
 _rtc->SetIsWriteProtected(false);
@@ -47,44 +44,62 @@ void Rtc1302::loop(long ms)
     if (!timeClient)
         return;
    
-    if (upd_success)
+    if (ms - last_update > upd_success?_interval:_short_interval)
     {
-        if (ms - last_update > _interval)
-        {
-            upd_success = timeClient->forceUpdate();
-            if (upd_success)
+        upd_success = timeClient->forceUpdate();
+        if (upd_success)
             {
               
                 setfrominet();
             }else 
             {
-                logg.logging("Error update time on long period");
+                logg.logging("Error update time.");
             }
             last_update=ms;
-        }
     }
-    else
-    {
-        if (ms - last_update > _short_interval)
-        {
-            upd_success = timeClient->forceUpdate();
-            if (upd_success)
-            {
+
+    // if (upd_success)
+    // {
+    //     if (ms - last_update > _interval)
+    //     {
+    //         upd_success = timeClient->forceUpdate();
+    //         if (upd_success)
+    //         {
+              
+    //             setfrominet();
+    //         }else 
+    //         {
+    //             logg.logging("Error update time on long period");
+    //         }
+    //         last_update=ms;
+    //     }
+    // }
+    // else
+    // {
+    //     if (ms - last_update > _short_interval)
+    //     {
+    //         upd_success = timeClient->forceUpdate();
+    //         if (upd_success)
+    //         {
              
-                setfrominet();
-            }else 
-            {
+    //             setfrominet();
+    //         }else 
+    //         {
                 
-                logg.logging("Error update time on short period");
-            }
-            last_update=ms;
-        }
-    }
+    //             logg.logging("Error update time on short period");
+    //         }
+    //         last_update=ms;
+    //     }
+    // }
 }
 
 void Rtc1302::setfrominet(){
     RtcDateTime d;
-    
+    if (!timeClient){
+           if (!ntpUDP) ntpUDP=new WiFiUDP();
+           timeClient = new NTPClient(*ntpUDP ,ntp_server , 3600*TIME_OFFSET, _interval);
+           timeClient->begin();
+    }
     d.InitWithEpoch64Time(timeClient->getEpochTime());
     logg.logging("Success update " +toString(d));
     _rtc->SetDateTime(d);
@@ -112,11 +127,11 @@ String Rtc1302::toString(const RtcDateTime& dt)
 }
 
 bool Rtc1302::setMemory(uint8_t d,uint8_t addr){
-    _rtc->SetMemory(&d,addr);
+    return _rtc->SetMemory(&d,addr)>0;
 }
 
 uint8_t Rtc1302::getMemory(uint8_t addr){
-    _rtc->GetMemory(addr);
+    return _rtc->GetMemory(addr);
 }
 
 String Rtc1302::test(){

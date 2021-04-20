@@ -28,6 +28,7 @@ boolean forceWiFi;//если не задалось с первого раза п
 extern boolean connect2WiFi();
 long ms;
 
+
 WP_system wp_sys;
 HttpHelper * http_server;
 MqttClient * mqtt;
@@ -56,24 +57,30 @@ logg.logging(fw);
  wsens.addSensor(SENSOR1,"Kuhnya");
  wsens.addSensor(SENSOR3,"Shahta");
  wsens.addSensor(SENSOR4,"Tualett");
-  
- wp_sys.setup(&valve,&wsens,&rtc);
+ 
+ 
 
   //pinMode(2,OUTPUT);
  
  btns.add(BTN_PIN, LOW);
+ 
+
 
     forceWiFi=true;
     if (connect2WiFi())
     {
+      
       http_server = new HttpHelper();
       http_server->setup(&wp_sys);
+      
       mqtt = new MqttClient();
       mqtt->setup(&wp_sys);
       msWiFi=0;
     }
+    
     ms=0;
-  
+    wp_sys.setup(&valve,&wsens,&rtc,mqtt); 
+
   //httph.setup();
   //btns.add(BTN_PIN,HIGH);
  

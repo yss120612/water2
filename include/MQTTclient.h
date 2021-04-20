@@ -14,16 +14,18 @@ class MqttClient{
    ~MqttClient();
     void setup(WP_system *ws);
     void loop(long ms);
+    void setValve(bool state);
+    void alarm();
+
     private:
     PubSubClient * client;
     void reconnect();
     void callback(char* topic, byte* payload, unsigned int length);
-    //ESP8266WiFiClass * wifi;
     WiFiClient * wf;
     WP_system * ws_sys;
-
     const int check_time=1000; //every 3 sec
     unsigned long last_check;
+    bool ignore_next_valve;
 
 };
 #endif

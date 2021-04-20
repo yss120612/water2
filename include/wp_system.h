@@ -6,16 +6,18 @@
 #include "wsensors.h"
 
 
+
 class Valve;
 class Rtc1302;
 class Wsensors;
+class MqttClient;
 
 class WP_system
 {
     public:
     WP_system();
     ~WP_system();
-    void setup(Valve * v, Wsensors * w, Rtc1302 * r);
+    void setup(Valve * v, Wsensors * w, Rtc1302 * r, MqttClient * mq);
     void process(long ms);
     
     void alarm(uint8_t sensor_no);
@@ -23,7 +25,8 @@ class WP_system
     bool close_valve();
     bool switch_valve();
     void disalarm();
-    bool isALARM(){return ALARM>0;}
+    uint8_t isALARM(){return ALARM;}
+    bool valve_is_open();
     private:
     const long CHECK_TIME=1000*60*60*24;//one hour
     long last_time;
@@ -31,6 +34,7 @@ class WP_system
     Valve * vlv;
     Rtc1302 * rtc;
     Wsensors * ws;
+    MqttClient * mqtt;
 };
 
 #endif
