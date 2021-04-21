@@ -16,7 +16,9 @@ class MqttClient{
     void loop(long ms);
     void setValve(bool state);
     void alarm();
-
+    void log(String s);
+    String getStatus();
+    
     private:
     PubSubClient * client;
     void reconnect();

@@ -1,46 +1,58 @@
-// 
-// 
-// 
+//
+//
+//
 
 #include "Log.h"
+#include "MQTTclient.h"
 
-
-String Logg::getAll(String divider) {
+String Logg::getAll(String divider)
+{
 	String result = "";
-	if (_log.length() > 0) {
-		for (uint16_t i = 0; i < _log.length(); i++) {
+	if (_log.length() > 0)
+	{
+		for (uint16_t i = 0; i < _log.length(); i++)
+		{
 			result += _log[i];
-			if (i != _log.length() - 1) {
+			if (i != _log.length() - 1)
+			{
 				result += divider;
 			}
 		}
 	}
-	else {
+	else
+	{
 		result = "Log is empty...";
 	}
 	return result;
 }
 
-String Logg::getAll2Web(String divider) {
+String Logg::getAll2Web(String divider)
+{
 	String result = "";
-	if (_log.length() > 0) {
-		for (uint16_t i = 0; i < _log.length(); i++) {
-			result += "<"+divider+">";
+	if (_log.length() > 0)
+	{
+		for (uint16_t i = 0; i < _log.length(); i++)
+		{
+			result += "<" + divider + ">";
 			result += _log[i];
-			result += "</"+divider+">";
-			
+			result += "</" + divider + ">";
 		}
 	}
-	else {
+	else
+	{
 		result = "Log is empty...";
 	}
 	return result;
 }
-
 
 int Logg::length()
 {
 	return _log.length();
+}
+
+void Logg::setup(MqttClient *mq)
+{
+	mqtt = mq;
 }
 
 void Logg::logging(String s)
@@ -49,10 +61,13 @@ void Logg::logging(String s)
 	Serial.println(s);
 #endif // _SERIAL
 
-	if (_log.length() >= maxCount) {
+	if (_log.length() >= maxCount)
+	{
 		_log.pop_front();
 	}
 	_log.push_back(s);
+	if (mqtt)
+		mqtt->log(s);
 }
 
 Logg logg(100);

@@ -17,7 +17,23 @@ void MqttClient::setup(WP_system *ws)
   ws_sys = ws;
   client = new PubSubClient(mqtt_server, mqtt_port, std::bind(&MqttClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), *wf);
   ignore_next_valve=false;
-};
+}
+
+String MqttClient::getStatus()
+{
+
+  String result="";
+  if (client->connected()){
+    result+="Mqtt client conected to ";
+    result+=mqtt_server;
+  }else{
+    result+="Mqtt client disconnected!";
+    
+  }
+
+  return result;
+  
+}
 
 void MqttClient::callback(char *topic, byte *payload, unsigned int length)
 {
@@ -27,7 +43,7 @@ void MqttClient::callback(char *topic, byte *payload, unsigned int length)
   {
     mess += (char)payload[i];
   }
-  logg.logging("Message arrived [" + String(topic) + String("] = ") + mess+String(ignore_next_valve?" (ignored)":""));
+  logg.logging("[" + String(topic) + String("] = ") + mess+String(ignore_next_valve?" (ignor)":""));
   if (top.indexOf("/valve")>0)
   {
     if (ignore_next_valve){
@@ -93,7 +109,9 @@ void MqttClient::alarm(){
   client->publish(mqtt_str_ws4, ws_sys->isALARM() == 4 ? "1" : "0");
 }
 
-
+void MqttClient::log(String s){
+client->publish(mqtt_str_log, s.c_str());
+}
 
 void MqttClient::loop(long ms)
 {

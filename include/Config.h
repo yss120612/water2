@@ -20,6 +20,7 @@ extern const char * mqtt_str_ws1;
 extern const char * mqtt_str_ws2;
 extern const char * mqtt_str_ws3;
 extern const char * mqtt_str_ws4;
+extern const char * mqtt_str_log;
 
 extern const char * fw;
 extern const PROGMEM char *httpLogin;
