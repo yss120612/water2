@@ -18,6 +18,15 @@ void Wsensors::setup(WP_system * ws, uint8_t lvl){
         //vlv=v;
         wp_sys=ws;
         level=lvl;
+        pwr_pin=2;
+        pwr=100;
+        measured=false;
+        if (pwr_pin!=0){
+            pinMode(pwr_pin,OUTPUT);
+            digitalWrite(pwr_pin,LOW);
+        }
+
+
 
 };
 
@@ -36,6 +45,8 @@ void Wsensors::alarm_event(uint8_t n){
         _snsrs[n]->alarmscount++;
         if (_snsrs[n]->alarmscount>=max_alarms){
         wp_sys->alarm(n);
+        if (pwr_pin>0) digitalWrite(pwr_pin,LOW);
+        measured=false;   
         }
     }
 }
@@ -55,6 +66,8 @@ void Wsensors::disalarm_event(uint8_t n){
     {
         _snsrs[n]->alarmscount=0;
     }
+    
+
 }
 
 void Wsensors::addSensor(uint8_t pin,String name){
@@ -70,9 +83,30 @@ _snsrs.push_back(s);
 
 void Wsensors::processSensors(long ms){
     
-    if (ms-last_check<check_time) return;
-    last_check=ms;
     if (wp_sys->isALARM()) return;
+    if (ms-last_check<(check_time-pwr_forward)) return;
+    
+    if (pwr_pin>0) pwr=digitalRead(pwr_pin);
+
+    if (pwr==LOW && !measured) 
+    {
+       if (pwr_pin>0) digitalWrite(pwr_pin,HIGH);
+       return;
+    }
+
+    if (pwr==HIGH && measured){
+        last_check=ms;
+        if (pwr_pin>0) digitalWrite(pwr_pin,LOW);
+        measured=false;
+        return;
+    }
+
+   if (ms-last_check<check_time) return;
+
+   if (pwr==100) last_check=ms;
+
+    measured=true;
+
    for (uint8_t i = 0; i < _snsrs.size(); i++)
     {
         //logg.logging("i="+String(i)+" level="+String(digitalRead(_snsrs[i]->pin)));
@@ -81,5 +115,6 @@ void Wsensors::processSensors(long ms){
         else
         disalarm_event(i);
     } 
+    
     
 }
