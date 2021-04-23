@@ -54,6 +54,7 @@ void WP_system::process(unsigned long ms)
     ws->processSensors(ms);
     rtc->processRtc(ms);
     speaker->processSpeaker(ms);
+    if (ms < last_time) last_time=ms;
     if (ms - last_time > CHECK_TIME)
     { //one per hour
         last_time = ms;

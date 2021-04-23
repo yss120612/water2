@@ -29,7 +29,7 @@ class WP_system
     bool valve_is_open();
     private:
     const long CHECK_TIME=1000*60*60*24;//one hour
-    long last_time;
+    unsigned long last_time;
     uint8_t ALARM;
     Valve * vlv;
     Rtc1302 * rtc;

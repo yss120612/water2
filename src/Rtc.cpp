@@ -43,7 +43,7 @@ void Rtc1302::processRtc(unsigned long ms)
 {
     if (!timeClient)
         return;
-   
+   if (ms<last_update) last_update=ms;
     if (ms - last_update > upd_success?_interval:_short_interval)
     {
         upd_success = timeClient->forceUpdate();

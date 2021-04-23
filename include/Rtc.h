@@ -32,7 +32,7 @@ RtcDS1302<ThreeWire> * _rtc;
 ThreeWire * _tw;
 //RtcDateTime compiled;
 int _interval,_short_interval;
-long last_update;
+unsigned long last_update;
 bool upd_success;
 WiFiUDP * ntpUDP;
 NTPClient * timeClient;
