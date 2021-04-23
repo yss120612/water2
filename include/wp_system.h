@@ -4,7 +4,7 @@
 #include "Rtc.h"
 #include "valve.h"
 #include "wsensors.h"
-
+#include "Speaker.h"
 
 
 class Valve;
@@ -17,8 +17,8 @@ class WP_system
     public:
     WP_system();
     ~WP_system();
-    void setup(Valve * v, Wsensors * w, Rtc1302 * r, MqttClient * mq);
-    void process(long ms);
+    void setup(Valve * v, Wsensors * w, Rtc1302 * r,Speaker * s, MqttClient * mq);
+    void process(unsigned long ms);
     
     void alarm(uint8_t sensor_no);
     bool open_valve();
@@ -34,6 +34,7 @@ class WP_system
     Valve * vlv;
     Rtc1302 * rtc;
     Wsensors * ws;
+    Speaker * speaker;
     MqttClient * mqtt;
 };
 

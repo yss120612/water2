@@ -39,7 +39,7 @@ _rtc->SetIsWriteProtected(false);
 
 }
 
-void Rtc1302::loop(long ms)
+void Rtc1302::processRtc(unsigned long ms)
 {
     if (!timeClient)
         return;

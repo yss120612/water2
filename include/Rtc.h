@@ -16,7 +16,7 @@ public:
 Rtc1302();
 ~Rtc1302();
 void setup(int interval= 60000*60*24);//default one per day
-void loop(long ms);
+void processRtc(unsigned long ms);
 bool settime(uint8_t offset);
 String toString(const RtcDateTime& dt);
 String timestring();

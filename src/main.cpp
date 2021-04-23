@@ -5,9 +5,10 @@
 #include "Log.h"
 #include "HttpHelper.h"
 #include "MQTTclient.h"
-         
+
 #include "wp_system.h"
 
+#include "Speaker.h"
 #include "Rtc.h"
 #include "Buttons.h"
 #include "wsensors.h"
@@ -23,7 +24,7 @@ unsigned long msWiFi;
 boolean forceWiFi; //если не задалось с первого раза повторять каждые Х минут или нет
 //BandLED band;
 extern boolean connect2WiFi();
-long ms;
+unsigned long ms;
 
 WP_system wp_sys;
 HttpHelper *http_server;
@@ -31,13 +32,14 @@ MqttClient *mqtt;
 Rtc1302 rtc;
 Buttons btns;
 Wsensors wsens;
-Valve valve(PIN_VOPEN, PIN_VCLOSE, LOW);
-
+Speaker spk;
+Valve valve;
 
 void setup()
 {
 
   // put your setup code here, to run once:
+  Serial2.end();
 #ifdef _SERIAL
   Serial.begin(115200);
   logg.logging("_SERIAL is defined");
@@ -47,7 +49,8 @@ void setup()
   logg.logging(fw);
 
   wsens.addSensor(SENSOR1, "Kuhnya");
-  wsens.addSensor(SENSOR3, "Shahta");
+  wsens.addSensor(SENSOR2, "Shahta");
+  wsens.addSensor(SENSOR3, "Vanna");
   wsens.addSensor(SENSOR4, "Tualett");
 
   //pinMode(2,OUTPUT);
@@ -68,9 +71,7 @@ void setup()
   }
 
   ms = 0;
-  wp_sys.setup(&valve, &wsens, &rtc, mqtt);
-
-
+  wp_sys.setup(&valve, &wsens, &rtc, &spk, mqtt);
 }
 void info()
 {
@@ -100,13 +101,21 @@ void processButtons(long ms)
       logg.logging("CLICK " + String(ev.button) + " count=" + String(ev.count) + " wait=" + String(ms - ev.wait_time) + " millis=" + String(ms));
       if (ev.count == 2 and ev.button == 0)
       {
-        wp_sys.close_valve();
+        wp_sys.disalarm();
       }
       else if (ev.count == 3 and ev.button == 0)
       {
-        wp_sys.disalarm();
+        if (wp_sys.valve_is_open())
+        {
+
+          wp_sys.close_valve();
+        }
+        else
+        {
+          wp_sys.open_valve();
+        }
       }
-      if (ev.count == 4 and ev.button == 0)
+      else if (ev.count == 4 and ev.button == 0)
       {
         wp_sys.switch_valve();
         logg.logging("swc at " + rtc.timestring());
@@ -134,14 +143,13 @@ void processButtons(long ms)
 
 void loop()
 {
-  
+
   ms = millis();
-  
+
   processButtons(ms);
-  
+
   wp_sys.process(ms);
   delay(5);
-  
 
   if (mqtt)
     mqtt->loop(ms);
@@ -187,7 +195,7 @@ boolean connect2WiFi()
         {
           logg.logging("Connecting to " + String(WIFI_SSID[i]) + " ...");
           WiFi.begin(WIFI_SSID[i], WIFI_PASS[i]);
-          delay(5000);
+          delay(7000);
           if (WiFi.status() == WL_CONNECTED)
           {
             success = true;

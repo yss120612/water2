@@ -81,9 +81,10 @@ _snsrs.push_back(s);
 
 
 
-void Wsensors::processSensors(long ms){
+void Wsensors::processSensors(unsigned long ms){
     
     if (wp_sys->isALARM()) return;
+    if (last_check>ms) last_check=ms;
     if (ms-last_check<(check_time-pwr_forward)) return;
     
     if (pwr_pin>0) pwr=digitalRead(pwr_pin);

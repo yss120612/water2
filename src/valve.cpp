@@ -1,23 +1,24 @@
 #include "valve.h"
 #include "Log.h"
 
-Valve::Valve(uint8_t OP, uint8_t CL, uint8_t lvl)
+Valve::Valve()
 {
-   VOPEN=OP;
-   VCLOSE=CL;
-   pinMode(VOPEN,OUTPUT);
-   pinMode(VCLOSE,OUTPUT);
-   level=lvl;
-   digitalWrite(VOPEN,!level);
-   digitalWrite(VCLOSE,!level);
+   
 }
 
-void Valve::setup(WP_system * wp)
+void Valve::setup(uint8_t OP, uint8_t CL, uint8_t lv, WP_system * wp)
 {
     in_progress=false;
     action=RELAXED;
     status=CLS;
     wp_sys=wp;
+    VOPEN=OP;
+   VCLOSE=CL;
+   pinMode(VOPEN,OUTPUT);
+   pinMode(VCLOSE,OUTPUT);
+   level=lv;
+   digitalWrite(VOPEN,!level);
+   digitalWrite(VCLOSE,!level);
 }
 
 Valve::~Valve()
@@ -27,28 +28,28 @@ Valve::~Valve()
 bool Valve::open()
 {
     if (action!=RELAXED) return false;
-    logg.logging("open");
     action=INOPEN;
     digitalWrite(VOPEN,level);
     run();
+    logg.logging("open");
     return true;
 }
 
 bool Valve::close()
 {
     if (action!=RELAXED) return false;
-    logg.logging("close");
     action=INCLOSE;
     digitalWrite(VCLOSE,level);
     run();
+    logg.logging("close");
     return true;
 }
 
 bool Valve::swc()
 {
     if (status!=OPN || action!=RELAXED) return false;
-    digitalWrite(VCLOSE,level);
     action=INSWITCH;
+    digitalWrite(VCLOSE,level);
     run();
     return true;
 }
@@ -85,10 +86,11 @@ void Valve::stop()
     
 }
 
-void Valve::processValves(long m){
+void Valve::processValves(unsigned long ms){
     
     if (!in_progress) return;
-    if (m-start_action_time>ACTION_TIME){
+    if (start_action_time>ms) start_action_time=ms;
+    if (ms-start_action_time>ACTION_TIME){
         stop();
     }
 }

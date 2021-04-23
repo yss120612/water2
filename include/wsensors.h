@@ -21,7 +21,7 @@ class Wsensors
     Wsensors(/* args */);
     ~Wsensors();
 
-    void processSensors(long ms);
+    void processSensors(unsigned long ms);
     void setup(WP_system *ws, uint8_t lvl);
     void addSensor(uint8_t pin,String name); 
     //bool isALARM(){return ALARM>0;}

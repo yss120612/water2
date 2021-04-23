@@ -1,7 +1,7 @@
 #include "wp_system.h"
 #include "Log.h"
 #include "MQTTclient.h"
-
+#include "Config.h"
 WP_system::WP_system()
 {
 }
@@ -16,16 +16,18 @@ bool WP_system::valve_is_open()
     //return true;
 }
 
-void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r, MqttClient *mq)
+void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r,Speaker * s, MqttClient *mq)
 {
     vlv = v;
     ws = w;
     rtc = r;
+    speaker=s;
     mqtt = mq;
 
     rtc->setup();
-    vlv->setup(this);
+    vlv->setup(PIN_VOPEN, PIN_VCLOSE, LOW, this);
     ws->setup(this, LOW);
+    speaker->setup(SPEAKER_PIN);
 
     ALARM = 0;
     if (rtc->getMemory(MEM_ALARM))
@@ -46,11 +48,12 @@ void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r, MqttClient *mq)
     }
 }
 
-void WP_system::process(long ms)
+void WP_system::process(unsigned long ms)
 {
-    ws->processSensors(ms);
     vlv->processValves(ms);
-    rtc->loop(ms);
+    ws->processSensors(ms);
+    rtc->processRtc(ms);
+    speaker->processSpeaker(ms);
     if (ms - last_time > CHECK_TIME)
     { //one per hour
         last_time = ms;
@@ -105,6 +108,7 @@ void WP_system::alarm(uint8_t sensor_no)
     rtc->setMemory(ALARM, MEM_ALARM);
     if (mqtt)
         mqtt->alarm();
+    speaker->activate(true);    
     logg.logging("Alarm!!! Check " + ws->getSensorName(sensor_no) + " sensor");
 }
 
@@ -115,5 +119,6 @@ void WP_system::disalarm()
     rtc->setMemory(0, MEM_ALARM);
     ws->disalarm();
     if (mqtt) mqtt->alarm();
+    speaker->activate(false);
     logg.logging("Disalarmed!");
 }

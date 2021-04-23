@@ -32,14 +32,14 @@ extern const PROGMEM char *httpPass;
 #define TIME_OFFSET 8
 
 #define SENSOR1 15
-#define SENSOR2 2
-#define SENSOR3 4
-#define SENSOR4 16
+#define SENSOR2 4
+#define SENSOR3 33
+#define SENSOR4 32
 
 
 // CONNECTIONS:
 
-#define BTN_PIN 32
+#define BTN_PIN 27
 
 #define SPEAKER_PIN 26
 
@@ -49,7 +49,7 @@ extern const PROGMEM char *httpPass;
 #define DS1302_DAT 12
 #define DS1302_RST 13
 
-#define PIN_VOPEN 5
+#define PIN_VOPEN 16
 #define PIN_VCLOSE 17
 
 #define MEM_ALARM 0
@@ -59,6 +59,10 @@ extern const PROGMEM char *httpPass;
 #define timeZone  8
 
 #define NTP_TIMEOUT 1500
+
+
+#define FREQ1 1000
+#define FREQ2 2000
 
 
 #endif

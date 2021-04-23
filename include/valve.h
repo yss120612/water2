@@ -28,7 +28,7 @@ private:
     bool in_progress;
     const uint16_t ACTION_TIME=1000*8;//8 second
     //const long CHECK_TIME=1000*60*60*24;//one hour
-    long start_action_time;
+    unsigned long start_action_time;
     //long last_time;
     uint8_t level;
     ValveStatus status;
@@ -37,13 +37,13 @@ private:
     void stop();
     WP_system * wp_sys;
 public:
-void setup(WP_system * wp);
+void setup(uint8_t OP, uint8_t CL, uint8_t lv,WP_system * wp);
 bool open();
 bool swc();
 bool close();
 bool is_open(){return status==OPN;}
-void processValves(long m);
-     Valve(uint8_t OP, uint8_t CL, uint8_t lv=HIGH);
+void processValves(unsigned long ms);
+     Valve();
     ~Valve();
 };
 
