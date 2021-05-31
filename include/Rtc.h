@@ -27,7 +27,7 @@ uint8_t getMemory(uint8_t addr);
 bool check_time(uint8_t d, uint8_t h);
 private:
 void setfrominet();
-
+bool initNtp();
 RtcDS1302<ThreeWire> * _rtc;
 ThreeWire * _tw;
 //RtcDateTime compiled;

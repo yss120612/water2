@@ -29,27 +29,30 @@ _tw=new ThreeWire(DS1302_DAT,DS1302_CLK,DS1302_RST);// IO, SCLK, CE
 
 _rtc= new RtcDS1302<ThreeWire>(*_tw);
 _interval=interval;
-
+_short_interval=1000*240;//5 min
 //RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
 
 _rtc->Begin();
 _rtc->SetIsRunning(true);
 _rtc->SetIsWriteProtected(false);
 //logg.logging(toString(compiled));
-
+initNtp();
 }
 
 void Rtc1302::processRtc(unsigned long ms)
 {
-    if (!timeClient)
-        return;
+    
    if (ms<last_update) last_update=ms;
-    if (ms - last_update > upd_success?_interval:_short_interval)
+    if (ms - last_update > (upd_success?_interval:_short_interval))
     {
+        if (!timeClient){
+        initNtp();
+        return;
+    }
         upd_success = timeClient->forceUpdate();
         if (upd_success)
             {
-              
+                logg.logging("ms="+String(ms)+" Last="+String(last_update));
                 setfrominet();
             }else 
             {
@@ -95,16 +98,19 @@ void Rtc1302::processRtc(unsigned long ms)
 
 void Rtc1302::setfrominet(){
     RtcDateTime d;
-    if (!timeClient){
-           if (!ntpUDP) ntpUDP=new WiFiUDP();
-           timeClient = new NTPClient(*ntpUDP ,ntp_server , 3600*TIME_OFFSET, _interval);
-           timeClient->begin();
-    }
     d.InitWithEpoch64Time(timeClient->getEpochTime());
     logg.logging("Success update " +toString(d));
     _rtc->SetDateTime(d);
 }
 
+bool Rtc1302::initNtp(){
+       if (!timeClient){
+           if (!ntpUDP) ntpUDP=new WiFiUDP();
+           timeClient = new NTPClient(*ntpUDP ,ntp_server , 3600*TIME_OFFSET, _interval);
+           timeClient->begin();
+    }
+    return timeClient!=NULL;
+}
 
 
 String Rtc1302::toString(const RtcDateTime& dt)
