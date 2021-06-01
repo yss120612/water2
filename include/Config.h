@@ -43,7 +43,7 @@ extern const PROGMEM char *httpPass;
 
 #define SPEAKER_PIN 26
 
-#define LED_PIN 25
+#define LED_PIN 2
 
 #define DS1302_CLK 14
 #define DS1302_DAT 12

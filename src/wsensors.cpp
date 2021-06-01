@@ -18,7 +18,7 @@ void Wsensors::setup(WP_system * ws, uint8_t lvl){
         //vlv=v;
         wp_sys=ws;
         level=lvl;
-        pwr_pin=2;
+        pwr_pin=LED_PIN;
         pwr=100;
         measured=false;
         if (pwr_pin!=0){
@@ -85,28 +85,52 @@ void Wsensors::processSensors(unsigned long ms){
     
     if (wp_sys->isALARM()) return;
     if (last_check>ms) last_check=ms;
-    if (ms-last_check<(check_time-pwr_forward)) return;
-    
-    if (pwr_pin>0) pwr=digitalRead(pwr_pin);
 
+    if (pwr_pin>0){
+    if (ms-last_check<(check_time-pwr_forward)) return;
+    pwr=digitalRead(pwr_pin);
     if (pwr==LOW && !measured) 
     {
-       if (pwr_pin>0) digitalWrite(pwr_pin,HIGH);
+       digitalWrite(pwr_pin,HIGH);
        return;
     }
-
     if (pwr==HIGH && measured){
         last_check=ms;
-        if (pwr_pin>0) digitalWrite(pwr_pin,LOW);
+        digitalWrite(pwr_pin,LOW);
         measured=false;
         return;
     }
-
-   if (ms-last_check<check_time) return;
-
-   if (pwr==100) last_check=ms;
-
+    if (ms-last_check<check_time) return;
     measured=true;
+
+    }else{
+     if (ms-last_check<check_time) return;   
+     last_check=ms;
+    }
+    
+
+//     if (ms-last_check<(check_time-pwr_forward)) return;
+    
+//     if (pwr_pin>0) pwr=digitalRead(pwr_pin);
+
+//     if (pwr==LOW && !measured) 
+//     {
+//        if (pwr_pin>0) digitalWrite(pwr_pin,HIGH);
+//        return;
+//     }
+
+//     if (pwr==HIGH && measured){
+//         last_check=ms;
+//         if (pwr_pin>0) digitalWrite(pwr_pin,LOW);
+//         measured=false;
+//         return;
+//     }
+
+   
+
+//    if (pwr==100) 
+
+    
 
    for (uint8_t i = 0; i < _snsrs.size(); i++)
     {
