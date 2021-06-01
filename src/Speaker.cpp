@@ -22,7 +22,7 @@ void Speaker::activate(bool _on){
 }
 void Speaker::processSpeaker(unsigned long ms){
 if (!speaker_on) return;
-if (last_check>ms) last_check=ms;
+if (last_check>ms) {last_check=ms;return;}
 if (ms-last_check<period) return;
 last_check=ms;
 ledcWriteTone(0,ledcReadFreq(0)<FREQ2-1.0?FREQ2:FREQ1);
