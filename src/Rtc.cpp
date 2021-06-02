@@ -107,9 +107,9 @@ String Rtc1302::toString(const RtcDateTime &dt)
     return String(datestring);
 }
 
-bool Rtc1302::setMemory(uint8_t d, uint8_t addr)
+void Rtc1302::setMemory(uint8_t d, uint8_t addr)
 {
-    return _rtc->SetMemory(&d, addr) > 0;
+    _rtc->SetMemory(addr,d);
 }
 
 uint8_t Rtc1302::getMemory(uint8_t addr)
