@@ -30,6 +30,8 @@ void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r,Speaker * s, MqttClient 
     speaker->setup(SPEAKER_PIN);
 
     ALARM = 0;
+    logg.logging("Memory alarm="+String(rtc->getMemory(MEM_ALARM)));
+    logg.logging("Memory valve="+String(rtc->getMemory(MEM_VALVE)));
     if (rtc->getMemory(MEM_ALARM))
     {
 
@@ -65,6 +67,7 @@ void WP_system::process(unsigned long ms)
 
 bool WP_system::close_valve()
 {
+
     if (!vlv->close())
         return false;
     rtc->setMemory(0, MEM_VALVE);
