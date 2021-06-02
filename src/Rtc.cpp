@@ -60,7 +60,7 @@ void Rtc1302::processRtc(unsigned long ms)
         upd_success = timeClient->forceUpdate();
         if (upd_success)
         {
-            logg.logging("ms=" + String(ms) + " Last=" + String(last_update));
+            //logg.logging("ms=" + String(ms) + " Last=" + String(last_update));
             setfrominet();
         }
         else

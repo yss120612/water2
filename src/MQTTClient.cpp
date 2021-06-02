@@ -17,6 +17,7 @@ void MqttClient::setup(WP_system *ws)
   ws_sys = ws;
   client = new PubSubClient(mqtt_server, mqtt_port, std::bind(&MqttClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), *wf);
   ignore_next_valve=false;
+  
 }
 
 String MqttClient::getStatus()
@@ -75,7 +76,7 @@ void MqttClient::reconnect()
     // Attempt to connect
     if (client->connect("ESP32Client-233", mqtt_user, mqtt_pass))
     {
-      logg.logging("connected");
+      logg.logging(getStatus());
       // Once connected, publish an announcement...
       //client->publish("user/yss1/161/alarm","0");
       
@@ -84,7 +85,7 @@ void MqttClient::reconnect()
       client->subscribe(mqtt_str_valve);
       client->subscribe(mqtt_str_switch);
       client->subscribe(mqtt_str_disalarm);
-      setValve(ws_sys->valve_is_open());
+      //setValve(ws_sys->valve_is_open());
       alarm();
     }
     else
@@ -99,6 +100,7 @@ void MqttClient::reconnect()
 }
 void MqttClient::setValve(bool state){
   client->publish(mqtt_str_valve, state ? "1" : "0");
+  //logg.logging("PUBLISH="+String(state));
   ignore_next_valve=true;
 }
 
