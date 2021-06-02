@@ -18,10 +18,11 @@ class MqttClient{
     void alarm();
     void log(String s);
     String getStatus();
+    void reconnect();
     
     private:
     PubSubClient * client;
-    void reconnect();
+    
     void callback(char* topic, byte* payload, unsigned int length);
     WiFiClient * wf;
     WP_system * ws_sys;

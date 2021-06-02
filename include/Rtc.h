@@ -22,7 +22,7 @@ String toString(const RtcDateTime& dt);
 String timestring();
 bool isSuccess(){return upd_success;}
 String test();
-bool setMemory(uint8_t d,uint8_t addr);
+void setMemory(uint8_t d,uint8_t addr);
 uint8_t getMemory(uint8_t addr);
 bool check_time(uint8_t d, uint8_t h);
 private:
