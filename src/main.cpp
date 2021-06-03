@@ -127,6 +127,10 @@ void processButtons(long ms)
       {
         info();
       }
+      else if (ev.button == 1)
+      {
+         
+      }
       break;
     case BTN_RELEASED:
       //logg.logging("RELEASED "+ String(ev.button));
