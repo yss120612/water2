@@ -15,8 +15,8 @@
 #include "valve.h"
 #include "Config.h"
 
-std::array<char *, 2> WIFI_SSID{"Yss_GIGA", "academy"};
-std::array<char *, 2> WIFI_PASS{"bqt3bqt3", "123qweasd"};
+std::array<char *, 3> WIFI_SSID{"Yss_GIGA", "academy","RT-GPON-172A"};
+std::array<char *, 3> WIFI_PASS{"bqt3bqt3", "123qweasd","V6F7V3j5"};
 
 const char *fw = "Running firmware v. 2.3";
 

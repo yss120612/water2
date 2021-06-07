@@ -3,7 +3,7 @@
 #define _LOG_h
 #include "arduino.h"
 
-#define _SERIAL
+#define _SERIAL1
 
 #include <QList.h>
 

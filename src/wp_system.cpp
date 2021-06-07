@@ -30,13 +30,11 @@ void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r,Speaker * s, MqttClient 
     speaker->setup(SPEAKER_PIN);
     if (mqtt) mqtt->reconnect();
     ALARM = 0;
-<<<<<<< HEAD
-    logg.logging("Memory alarm="+String(rtc->getMemory(MEM_ALARM)));
-    logg.logging("Memory valve="+String(rtc->getMemory(MEM_VALVE)));
-=======
+
+
     //logg.logging("ALARM="+String(rtc->getMemory(MEM_ALARM)));
     //logg.logging("VALVE="+String(rtc->getMemory(MEM_VALVE)));
->>>>>>> ff1dcb4d3d0ff3152d518d3f1f5b23ac33dd536d
+
     if (rtc->getMemory(MEM_ALARM))
     {
 
