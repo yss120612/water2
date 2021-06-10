@@ -15,18 +15,18 @@ class MqttClient{
     void setup(WP_system *ws);
     void loop(long ms);
     void setValve(bool state);
-    void alarm();
+    void show_alarm();
     void log(String s);
     String getStatus();
     void reconnect();
-    
+
     private:
     PubSubClient * client;
     
     void callback(char* topic, byte* payload, unsigned int length);
     WiFiClient * wf;
     WP_system * ws_sys;
-    const int check_time=1000; //every 3 sec
+    const int check_time=6000000; //every 10 min
     unsigned long last_check;
     bool ignore_next_valve;
 
