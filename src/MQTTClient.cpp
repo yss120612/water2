@@ -99,12 +99,14 @@ void MqttClient::reconnect()
   }
 }
 void MqttClient::setValve(bool state){
+  if (!client->connected()) return;
   client->publish(mqtt_str_valve, state ? "1" : "0");
   //logg.logging("PUBLISH="+String(state));
   ignore_next_valve=true;
 }
 
 void MqttClient::alarm(){
+  if (!client->connected()) return;
   client->publish(mqtt_str_ws1, ws_sys->isALARM() == 1 ? "1" : "0");
   client->publish(mqtt_str_ws2, ws_sys->isALARM() == 2 ? "1" : "0");
   client->publish(mqtt_str_ws3, ws_sys->isALARM() == 3 ? "1" : "0");
@@ -112,6 +114,7 @@ void MqttClient::alarm(){
 }
 
 void MqttClient::log(String s){
+  if (!client->connected()) return;
 client->publish(mqtt_str_log, s.c_str());
 }
 
