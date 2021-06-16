@@ -15,25 +15,26 @@ void MqttClient::setup(WP_system *ws)
 {
   wf = new WiFiClient();
   ws_sys = ws;
+
   client = new PubSubClient(mqtt_server, mqtt_port, std::bind(&MqttClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), *wf);
-  ignore_next_valve=false;
-  
+  ignore_next_valve = false;
 }
 
 String MqttClient::getStatus()
 {
 
-  String result="";
-  if (client->connected()){
-    result+="Mqtt client conected to ";
-    result+=mqtt_server;
-  }else{
-    result+="Mqtt client disconnected!";
-    
+  String result = "";
+  if (client->connected())
+  {
+    result += "Mqtt client conected to ";
+    result += mqtt_server;
+  }
+  else
+  {
+    result += "Mqtt client disconnected!";
   }
 
   return result;
-  
 }
 
 void MqttClient::callback(char *topic, byte *payload, unsigned int length)
@@ -44,11 +45,12 @@ void MqttClient::callback(char *topic, byte *payload, unsigned int length)
   {
     mess += (char)payload[i];
   }
-  logg.logging("[" + String(topic) + String("] = ") + mess+String(ignore_next_valve?" (ignor)":""));
-  if (top.indexOf("/valve")>0)
+  logg.logging("[" + String(topic) + String("] = ") + mess + String(ignore_next_valve ? " (ignor)" : ""));
+  if (top.indexOf("/valve") > 0)
   {
-    if (ignore_next_valve){
-      ignore_next_valve=false;
+    if (ignore_next_valve)
+    {
+      ignore_next_valve = false;
       return;
     }
     if (mess.equals("0"))
@@ -56,11 +58,11 @@ void MqttClient::callback(char *topic, byte *payload, unsigned int length)
     else
       ws_sys->open_valve();
   }
-  else if (top.indexOf("/switch")>0)
+  else if (top.indexOf("/switch") > 0)
   {
     ws_sys->switch_valve();
   }
-  else if (top.indexOf("/disalarm")>0)
+  else if (top.indexOf("/disalarm") > 0)
   {
     ws_sys->disalarm();
   }
@@ -70,6 +72,7 @@ void MqttClient::reconnect()
 {
   // Loop until we're reconnected
   uint8_t err = 0;
+  
   while (!client->connected())
   {
     logg.logging("Attempting MQTT connection...");
@@ -79,14 +82,17 @@ void MqttClient::reconnect()
       logg.logging(getStatus());
       // Once connected, publish an announcement...
       //client->publish("user/yss1/161/alarm","0");
-      
+
       // ... and resubscribe
       //logg.logging(mqtt_str_valve);
+      client->unsubscribe(mqtt_str_valve);
+      client->unsubscribe(mqtt_str_switch);
+      client->unsubscribe(mqtt_str_disalarm);
       client->subscribe(mqtt_str_valve);
       client->subscribe(mqtt_str_switch);
       client->subscribe(mqtt_str_disalarm);
       //setValve(ws_sys->valve_is_open());
-      alarm();
+      show_alarm();
     }
     else
     {
@@ -98,32 +104,56 @@ void MqttClient::reconnect()
       break;
   }
 }
+<<<<<<< HEAD
 void MqttClient::setValve(bool state){
   if (!client->connected()) return;
+=======
+void MqttClient::setValve(bool state)
+{
+  if (!client->connected())
+    return;
+>>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
   client->publish(mqtt_str_valve, state ? "1" : "0");
   //logg.logging("PUBLISH="+String(state));
-  ignore_next_valve=true;
+  ignore_next_valve = true;
 }
 
+<<<<<<< HEAD
 void MqttClient::alarm(){
   if (!client->connected()) return;
+=======
+void MqttClient::show_alarm()
+{
+  if (!client->connected())
+    return;
+>>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
   client->publish(mqtt_str_ws1, ws_sys->isALARM() == 1 ? "1" : "0");
   client->publish(mqtt_str_ws2, ws_sys->isALARM() == 2 ? "1" : "0");
   client->publish(mqtt_str_ws3, ws_sys->isALARM() == 3 ? "1" : "0");
   client->publish(mqtt_str_ws4, ws_sys->isALARM() == 4 ? "1" : "0");
 }
 
+<<<<<<< HEAD
 void MqttClient::log(String s){
   if (!client->connected()) return;
 client->publish(mqtt_str_log, s.c_str());
+=======
+void MqttClient::log(String s)
+{
+  if (!client->connected())
+    return;
+  client->publish(mqtt_str_log, s.c_str());
+>>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
 }
 
 void MqttClient::loop(long ms)
 {
   client->loop();
+  if (last_check > ms)
+    last_check = ms;
   if (ms - last_check < check_time)
     return;
   last_check = ms;
   if (!client->connected())
     reconnect();
-};
+}

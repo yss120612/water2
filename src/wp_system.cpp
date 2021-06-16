@@ -42,7 +42,7 @@ void WP_system::setup(Valve *v, Wsensors *w, Rtc1302 *r,Speaker * s, MqttClient 
     }
 
     if (mqtt)
-        mqtt->alarm();
+        mqtt->show_alarm();
     if (ALARM) return;
     if (rtc->getMemory(MEM_VALVE) > 0)
     {
@@ -116,7 +116,7 @@ void WP_system::alarm(uint8_t sensor_no)
     ALARM = sensor_no + 1;
     rtc->setMemory(ALARM, MEM_ALARM);
     if (mqtt)
-        mqtt->alarm();
+        mqtt->show_alarm();
     speaker->activate(true);    
     logg.logging("Alarm!!! Check " + ws->getSensorName(sensor_no) + " sensor");
 }
@@ -127,7 +127,7 @@ void WP_system::disalarm()
     open_valve();
     rtc->setMemory(0, MEM_ALARM);
     ws->disalarm();
-    if (mqtt) mqtt->alarm();
+    if (mqtt) mqtt->show_alarm();
     speaker->activate(false);
     logg.logging("Disalarmed!");
 }

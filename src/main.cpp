@@ -35,6 +35,21 @@ Wsensors wsens;
 Speaker spk;
 Valve valve;
 
+void init_networks(){
+ if (!http_server)
+        {
+          http_server = new HttpHelper();
+          http_server->setup(&wp_sys);
+        }
+        if (!mqtt)
+        {
+          mqtt = new MqttClient();
+          mqtt->setup(&wp_sys);
+          logg.setup(mqtt);
+        }
+        
+}
+
 void setup()
 {
 
@@ -60,13 +75,7 @@ void setup()
   forceWiFi = true;
   if (connect2WiFi())
   {
-
-    http_server = new HttpHelper();
-    http_server->setup(&wp_sys);
-
-    mqtt = new MqttClient();
-    mqtt->setup(&wp_sys);
-    logg.setup(mqtt);
+    init_networks();
     msWiFi = 0;
   }
 
@@ -74,8 +83,11 @@ void setup()
   wp_sys.setup(&valve, &wsens, &rtc, &spk, mqtt);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
 void info()
 {
   logg.logging(fw);
@@ -148,6 +160,9 @@ void processButtons(long ms)
   }
 }
 
+
+
+
 void loop()
 {
 
@@ -168,27 +183,20 @@ void loop()
     {
       if (connect2WiFi())
       {
-        if (!http_server)
-        {
-          http_server = new HttpHelper();
-          http_server->setup(&wp_sys);
-        }
-        if (!mqtt)
-        {
-          mqtt = new MqttClient();
-          mqtt->setup(&wp_sys);
-          logg.setup(mqtt);
-        }
+       init_networks();
       }
     }
   }
 }
+
+
 
 boolean connect2WiFi()
 {
   uint8_t i, k;
   uint8_t cycles = 0;
   boolean success = false;
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   uint8_t n = WiFi.scanNetworks();
