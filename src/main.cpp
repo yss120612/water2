@@ -83,11 +83,8 @@ void setup()
   wp_sys.setup(&valve, &wsens, &rtc, &spk, mqtt);
 }
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
 void info()
 {
   logg.logging(fw);

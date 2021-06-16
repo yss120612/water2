@@ -104,46 +104,24 @@ void MqttClient::reconnect()
       break;
   }
 }
-<<<<<<< HEAD
 void MqttClient::setValve(bool state){
   if (!client->connected()) return;
-=======
-void MqttClient::setValve(bool state)
-{
-  if (!client->connected())
-    return;
->>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
   client->publish(mqtt_str_valve, state ? "1" : "0");
   //logg.logging("PUBLISH="+String(state));
   ignore_next_valve = true;
 }
 
-<<<<<<< HEAD
-void MqttClient::alarm(){
+void MqttClient::show_alarm(){
   if (!client->connected()) return;
-=======
-void MqttClient::show_alarm()
-{
-  if (!client->connected())
-    return;
->>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
   client->publish(mqtt_str_ws1, ws_sys->isALARM() == 1 ? "1" : "0");
   client->publish(mqtt_str_ws2, ws_sys->isALARM() == 2 ? "1" : "0");
   client->publish(mqtt_str_ws3, ws_sys->isALARM() == 3 ? "1" : "0");
   client->publish(mqtt_str_ws4, ws_sys->isALARM() == 4 ? "1" : "0");
 }
 
-<<<<<<< HEAD
 void MqttClient::log(String s){
   if (!client->connected()) return;
 client->publish(mqtt_str_log, s.c_str());
-=======
-void MqttClient::log(String s)
-{
-  if (!client->connected())
-    return;
-  client->publish(mqtt_str_log, s.c_str());
->>>>>>> 0e57bd849a969ce83899426fe66a7871fbf33ed8
 }
 
 void MqttClient::loop(long ms)
