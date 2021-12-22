@@ -19,7 +19,7 @@ class MqttClient{
     void log(String s);
     String getStatus();
     void reconnect();
-
+    
     private:
     PubSubClient * client;
     

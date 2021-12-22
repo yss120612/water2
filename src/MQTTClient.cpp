@@ -72,6 +72,7 @@ void MqttClient::reconnect()
 {
   // Loop until we're reconnected
   uint8_t err = 0;
+  
   while (!client->connected())
   {
     logg.logging("Attempting MQTT connection...");
@@ -103,31 +104,32 @@ void MqttClient::reconnect()
       break;
   }
 }
+<<<<<<< HEAD
 
 void MqttClient::setValve(bool state)
 {
   if (!client->connected())
     return;
+=======
+void MqttClient::setValve(bool state){
+  if (!client->connected()) return;
+>>>>>>> b15c1b287afabbf9464657fe936424389018c985
   client->publish(mqtt_str_valve, state ? "1" : "0");
   //logg.logging("PUBLISH="+String(state));
   ignore_next_valve = true;
 }
 
-void MqttClient::show_alarm()
-{
-  if (!client->connected())
-    return;
+void MqttClient::show_alarm(){
+  if (!client->connected()) return;
   client->publish(mqtt_str_ws1, ws_sys->isALARM() == 1 ? "1" : "0");
   client->publish(mqtt_str_ws2, ws_sys->isALARM() == 2 ? "1" : "0");
   client->publish(mqtt_str_ws3, ws_sys->isALARM() == 3 ? "1" : "0");
   client->publish(mqtt_str_ws4, ws_sys->isALARM() == 4 ? "1" : "0");
 }
 
-void MqttClient::log(String s)
-{
-  if (!client->connected())
-    return;
-  client->publish(mqtt_str_log, s.c_str());
+void MqttClient::log(String s){
+  if (!client->connected()) return;
+client->publish(mqtt_str_log, s.c_str());
 }
 
 void MqttClient::loop(long ms)
