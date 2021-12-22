@@ -103,6 +103,7 @@ void MqttClient::reconnect()
       break;
   }
 }
+
 void MqttClient::setValve(bool state)
 {
   if (!client->connected())
