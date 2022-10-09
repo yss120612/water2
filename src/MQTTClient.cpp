@@ -104,8 +104,16 @@ void MqttClient::reconnect()
       break;
   }
 }
+<<<<<<< HEAD
+
+void MqttClient::setValve(bool state)
+{
+  if (!client->connected())
+    return;
+=======
 void MqttClient::setValve(bool state){
   if (!client->connected()) return;
+>>>>>>> b15c1b287afabbf9464657fe936424389018c985
   client->publish(mqtt_str_valve, state ? "1" : "0");
   //logg.logging("PUBLISH="+String(state));
   ignore_next_valve = true;
