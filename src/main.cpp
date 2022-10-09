@@ -50,6 +50,10 @@ void init_networks(){
         
 }
 
+static void WiFiTaskHandler(){
+  
+}
+
 void setup()
 {
 
